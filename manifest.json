@@ -1,0 +1,27 @@
+{
+    "manifest_version": 2,
+    "name": "thai-spell-check",
+    "version": "1.0",
+
+    "description": "Thai spellchecker for Firefox",
+    
+    "permissions": [
+        "<all_urls>"
+    ],
+
+    "background": {
+        "page": "background/background.html"
+    },
+
+    "content_scripts": [
+        {
+            "matches": ["http://*/*", "https://*/*", "file:///*"],
+            "js": [
+                "content.js",
+                "util.js",
+                "lib/markup.js",
+                "lib/purify.js"
+            ]
+        }
+    ]
+}
