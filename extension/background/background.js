@@ -13,7 +13,6 @@ function predictCuts(text) {
      if(l == 0) return [[],[]];
      var utfText = Module._malloc((l + 1) * 2);
      Module.stringToUTF16(text, utfText, (l + 1) * 2);
-
      var pos = Module._malloc((l + 1) * 4);
      var inc = Module._malloc((l + 1) * 4);
      var incRet = Module._malloc(4);
@@ -38,22 +37,16 @@ function predictCuts(text) {
 
 
 function handleRequest(request, sender, callback) {
-    if(request.action === "checkText") {
+    /*if(request.action === "checkText") {
         checkText(request.text, callback);
-    }
-    else {
-    }
+    }*/
+    checkText(request, callback)
 }
 
 function checkText(textObj, callback) {
     var ret = Array(textObj.length);
     for(var i=0; i<textObj.length; i++) {
-        if('text' in textObj[i]) {
-            ret[i] = predictCuts(textObj[i]['text']);
-        }
-        else {
-            ret[i] = 0;
-        }
+        ret[i] = predictCuts(textObj[i]);
     }
     callback(ret);
 }
