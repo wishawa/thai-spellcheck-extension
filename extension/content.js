@@ -275,8 +275,8 @@ var nowTime = 0;
 var lastCheckTime = 0;
 var shouldCheck = false;
 
-document.addEventListener('keyup', mainEvent);
-document.addEventListener('mousedown', mainEvent);
+document.addEventListener('keyup', function() {setTimeout(mainEvent, 100);});
+document.addEventListener('mousedown', function() {setTimeout(mainEvent, 100);});
 function mainEvent() {
     if(nowTime > lastCheckTime) {
         lastCheckTime = nowTime;
