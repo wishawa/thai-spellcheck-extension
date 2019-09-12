@@ -16,17 +16,16 @@ function handleRequest(request, sender, callback) {
 }
 
 var currentActiveElement = document.body;
-var isActiveElementInput = false;
+var isActiveElementInput;
+var isActiveElementSimpleInput;
 var currentHighlightOverlay;
 
 var styleElem = document.createElement('style');
 styleElem.innerHTML = '\
 #tsc-highlight-overlay {\
     position: absolute!important;\
-    break-after: avoid!important;\
+    display: block!important;\
     box-sizing: border-box!important;\
-    margin-block-start: 0!important;\
-    margin-block-end: 0!important;\
     color: transparent!important;\
     border: none!important;\
     border-block: none!important;\
@@ -76,10 +75,12 @@ function createHighlightOverlay(elem) {
         }
 
         currentHighlightOverlay.innerText = elem.value;
+        isActiveElementSimpleInput = true;
     }
     else {
         currentHighlightOverlay = elem.cloneNode(true);
         currentHighlightOverlay.id = 'tsc-highlight-overlay';
+        isActiveElementSimpleInput = false;
     }
     var lh = styles.getPropertyValue('line-height');
     if(lh == '' || lh == 'auto') {
@@ -112,6 +113,8 @@ function createHighlightOverlay(elem) {
     elem.addEventListener("blur", mainEvent);
     elem.addEventListener("input", mainEvent);
     elem.classList.add('tsc-highlighted-element');
+    doSize();
+    doScroll();
 
 }
 
@@ -119,13 +122,38 @@ async function doSize() {
     if(!currentHighlightOverlay) return 0;
     var parent = currentActiveElement.parentNode;
     const styles = window.getComputedStyle(currentActiveElement);
-    currentHighlightOverlay.style.width = currentActiveElement.clientWidth + 'px';
-    currentHighlightOverlay.style.height = currentActiveElement.clientHeight + 2 + 'px';
-
+    const styleLater = ['left', 'top', 'width', 'height'];
+    var cssText = Object.values(styles).reduce(function(css, propertyName) {
+        if(!styleLater.includes(propertyName)) return `${css}${propertyName}:${styles.getPropertyValue(propertyName)};`;
+        else return css;
+    });
+    //currentHighlightOverlay.style.width = currentActiveElement.clientWidth + 'px';
+    //currentHighlightOverlay.style.height = currentActiveElement.clientHeight + 2 + 'px';
+    cssText += `width:${currentActiveElement.clientWidth}px!important;`;
+    cssText += `height:${currentActiveElement.clientHeight + 2}px!important;`;
     if(isSimpleInput(currentActiveElement) && !styles.getPropertyValue('line-height')) {
         currentActiveElement.style.lineHeight = 1.25;
-        currentHighlightOverlay.style.lineHeight = 1.25;
+        //currentHighlightOverlay.style.lineHeight = 1.25;
+        cssText += `line-height: 1.25;`
     }
+    if(styles.getPropertyValue('box-sizing') == 'border-box') {
+        var tbw = parseFloat(styles.getPropertyValue('border-top-width').slice(0, -2));
+        var lbw = parseFloat(styles.getPropertyValue('border-left-width').slice(0, -2));
+        //currentHighlightOverlay.style.top = ((currentActiveElement.offsetTop - tbw) + 'px!important');
+        cssText += `top:${currentActiveElement.offsetTop - tbw}px!important;`;
+        //currentHighlightOverlay.style.left = ((currentActiveElement.offsetLeft - tbw) + 'px!important');
+        cssText += `left:${currentActiveElement.offsetLeft - lbw}px!important;`;
+    }
+    else {
+        currentActiveElement.style.boxSizing = 'content-box';
+        //currentHighlightOverlay.style.top = (currentActiveElement.offsetTop + 'px!important');
+        //currentHighlightOverlay.style.left = (currentActiveElement.offsetLeft + 'px!important');
+        cssText += `top:${currentActiveElement.offsetTop}px!important;`;
+        //currentHighlightOverlay.style.left = ((currentActiveElement.offsetLeft - tbw) + 'px!important');
+        cssText += `left:${currentActiveElement.offsetLeft}px!important;`;
+        //console.log("left: " + currentActiveElement.offsetLeft + 'px!important' + " : " + window.getComputedStyle(currentHighlightOverlay,null).getPropertyValue('left'));
+    }
+    currentHighlightOverlay.style.cssText = cssText;
 }
 var isActiveElementScrollableY = -1;
 var isActiveElementScrollableX = -1;
@@ -146,7 +174,6 @@ async function doScroll() {
     currentHighlightOverlay.scrollTop = currentActiveElement.scrollTop;
     currentHighlightOverlay.scrollLeft = currentActiveElement.scrollLeft;
 }
-
 async function recheckPage(callback) {
     if(document.activeElement != currentActiveElement || (currentActiveElement && !checkingEnabled)) {
         //console.log("active element changed!");
@@ -204,10 +231,11 @@ function getMarkupListOfActiveElement(elem) {
         }
     }
 }
+
 var previousText = [];
 var previousResult = [];
-
 var containsThaiRegex = /[ก-๛]/;
+
 function checkText(text) {
     var textToSend = [];
     var textToUse = Array(text.length);
@@ -220,12 +248,15 @@ function checkText(text) {
         }
         else {
             if('text' in text[i] && containsThaiRegex.test(text[i]['text'])) {
-                textToSend.push(text[i]['text']);
+                textToSend.push(escapeHtml(text[i]['text']));
                 toFill.push(i);
                 //console.log("sending: " + text[i]['text']);
             }
             else {
-                textToUse[i] = text[i];
+                //textToUse[i] = text[i];
+                if('text' in text[i] && 'markup' in text[i]) textToUse[i] = {text: escapeHtml(text[i]['text']), markup: text[i]['markup']};
+                else if('text' in text[i]) textToUse[i] = {text: escapeHtml(text[i]['text'])};
+                else textToUse[i] = {markup: text[i]['markup']};
             }
         }
     }
@@ -267,11 +298,15 @@ function checkText(text) {
 
         }
         //if(text.length == 1 && text[0]['text'].length == 0) currentHighlightOverlay.innerHTML = '';
+        //if(isActiveElementSimpleInput) currentHighlightOverlay.innerText = Markup.markupList2html(textToUse);
+        //else currentHighlightOverlay.innerHTML = Markup.markupList2html(textToUse);
         currentHighlightOverlay.innerHTML = Markup.markupList2html(textToUse);
         previousResult = textToUse;
         previousText = text;
     });
 }
+
+
 var nowTime;
 var lastCheckTime;
 var shouldCheck = false;
@@ -281,8 +316,14 @@ var interval3600sec = -1;
 function turnCheckOn() {
     if(checkingEnabled) return 0;
     checkingEnabled = true;
+    shouldCheck = true;
     nowTime = 0;
     lastCheckTime = -1;
+    previousResult = [];
+    previousText = [];
+    isActiveElementInput = false;
+    isActiveElementSimpleInput = false;
+    currentActiveElement = document.body;
     document.addEventListener('keyup', mainEvent100);
     document.addEventListener('mousedown', mainEvent100);
     //console.log('dealing with intervals');
@@ -307,10 +348,8 @@ function turnCheckOn() {
             currentHighlightOverlay.scrollLeft != currentActiveElement.scrollLeft) {
             doScroll();
         }
-        if(currentHighlightOverlay.offsetWidth != currentActiveElement.offsetWidth ||
-            currentHighlightOverlay.offsetHeight != currentActiveElement.offsetHeight ||
-            currentHighlightOverlay.offsetLeft != currentActiveElement.offsetLeft ||
-            currentHighlightOverlay.offsetTop != currentActiveElement.offsetTop) {
+        if(currentHighlightOverlay.clientWidth != currentActiveElement.clientWidth ||
+            currentHighlightOverlay.clientHeight != currentActiveElement.clientHeight + 2) {
             doSize();
         }
 
@@ -320,8 +359,11 @@ function turnCheckOn() {
         nowTime = 0;
         lastCheckTime = 0;
     }, 3600000);
-    recheckPage(checkText);
+    mainEvent100();
     //console.log("turned on");
+    /* ||
+    currentHighlightOverlay.offsetLeft != currentActiveElement.offsetLeft ||
+    currentHighlightOverlay.offsetTop != currentActiveElement.offsetTop*/
 }
 function turnCheckOff() {
     if(!checkingEnabled) return 0;
