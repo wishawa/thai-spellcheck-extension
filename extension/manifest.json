@@ -1,6 +1,6 @@
 {
     "manifest_version": 2,
-    "name": "thai-spell-check",
+    "name": "Thai Spellchecker",
     "version": "1.0",
 
     "description": "Thai spellchecker for Firefox",

@@ -72,7 +72,6 @@ function createHighlightOverlay(elem) {
 
             currentHighlightOverlay.style.cssText = cssText;
         }
-        //currentHighlightOverlay.style.cssText = cssText;
         currentHighlightOverlay.id = 'tsc-highlight-overlay';
 
         currentHighlightOverlay.innerText = elem.value;
@@ -141,7 +140,6 @@ async function doSize() {
         currentHighlightOverlay.style.top = currentActiveElement.offsetTop + 'px';
         currentHighlightOverlay.style.left = currentActiveElement.offsetLeft + 'px';
     }
-    //currentHighlightOverlay.style.cssText = cssText;
 }
 var isActiveElementScrollableY = -1;
 var isActiveElementScrollableX = -1;
@@ -164,7 +162,6 @@ async function doScroll() {
 }
 async function recheckPage(callback) {
     if(document.activeElement != currentActiveElement || (currentActiveElement && !checkingEnabled)) {
-        //console.log("active element changed!");
         currentActiveElement.classList.remove('tsc-highlighted-element');
         currentActiveElement.removeEventListener('scroll', doScroll);
         currentActiveElement.removeEventListener('resize', doSize);
@@ -173,7 +170,6 @@ async function recheckPage(callback) {
         currentActiveElement.removeEventListener('input', mainEvent);
         currentActiveElement = document.activeElement;
         if(isInput(currentActiveElement) && checkingEnabled) {
-            //console.log("New active element is input!");
             isActiveElementScrollableY = -1;
             isActiveElementScrollableX = -1;
             isActiveElementInput = true;
@@ -232,16 +228,13 @@ function checkText(text) {
         if(previousText[i] && 'text' in text[i] && 'text' in previousText[i] && previousText[i]['text'] === text[i]['text']) {
                 if('markup' in text[i]) textToUse[i] = {text: previousResult[i]['text'], markup: text[i]['markup']};
                 else textToUse[i] = {text: previousResult[i]['text']};
-                //console.log("reusing: " + text[i]['text'] + "  " + previousText[i]['text']);
         }
         else {
             if('text' in text[i] && containsThaiRegex.test(text[i]['text'])) {
                 textToSend.push(escapeHtml(text[i]['text']));
                 toFill.push(i);
-                //console.log("sending: " + text[i]['text']);
             }
             else {
-                //textToUse[i] = text[i];
                 if('text' in text[i] && 'markup' in text[i]) textToUse[i] = {text: escapeHtml(text[i]['text']), markup: text[i]['markup']};
                 else if('text' in text[i]) textToUse[i] = {text: escapeHtml(text[i]['text'])};
                 else textToUse[i] = {markup: text[i]['markup']};
@@ -271,9 +264,8 @@ function checkText(text) {
                     while(k < result[i][0].length && result[i][0][k] < result[i][1][j]) k++;
                     posIndex = k - 1;
                 }
-
-                if(posIndex == result[i][1][0].length - 1) {
-                    te += '</tsc-error-highlight>';
+                if(posIndex >= result[i][0].length - 1) {
+                    te = te + '</tsc-error-highlight>';
                 }
                 else {
                     te = te.slice(0, result[i][0][posIndex + 1] + textOffset) + '</tsc-error-highlight>' + te.slice(result[i][0][posIndex + 1] + textOffset);
@@ -312,7 +304,7 @@ function turnCheckOn() {
     currentActiveElement = document.body;
     document.addEventListener('keyup', mainEvent100);
     document.addEventListener('mousedown', mainEvent100);
-    //console.log('dealing with intervals');
+
     if(interval1sec != -1) {
         clearInterval(interval1sec);
         interval1sec = -1;
@@ -321,7 +313,7 @@ function turnCheckOn() {
         clearInterval(interval3600sec);
         interval3600sec = -1;
     }
-    //console.log('setting interval 1');
+
     interval1sec = setInterval(function() {
         nowTime += 1;
         if(shouldCheck) {
@@ -340,13 +332,13 @@ function turnCheckOn() {
         }
 
     }, 1000);
-    //console.log('setting interval 3600');
+
     interval3600sec = setInterval(function() {
         nowTime = 0;
         lastCheckTime = 0;
     }, 3600000);
     mainEvent100();
-    //console.log("turned on");
+
     /* ||
     currentHighlightOverlay.offsetLeft != currentActiveElement.offsetLeft ||
     currentHighlightOverlay.offsetTop != currentActiveElement.offsetTop*/
@@ -354,10 +346,10 @@ function turnCheckOn() {
 function turnCheckOff() {
     if(!checkingEnabled) return 0;
     checkingEnabled = false;
-    //console.log("turning off");
+
     document.removeEventListener('keyup', mainEvent100);
     document.removeEventListener('mousedown', mainEvent100);
-    //console.log('dealing with intervals');
+
     if(interval1sec != -1) {
         clearInterval(interval1sec);
         interval1sec = -1;
@@ -369,7 +361,7 @@ function turnCheckOff() {
     nowTime = 0;
     lastCheckTime = 0;
     recheckPage(function(r) {console.warn("Toggling spellcheck produced unexpected result: " + r);});
-    //console.log("turned off");
+
 }
 
 
@@ -391,6 +383,3 @@ function mainEvent() {
     }
 };
 turnCheckOn();
-
-
-//console.log("content script loaded");

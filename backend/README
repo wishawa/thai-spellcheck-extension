@@ -1,0 +1,5 @@
+The codes here are reduced and modified from LibThai: https://github.com/tlwg/libthai
+
+The ThBrk module, which provides word breaking functionality (finding where each word ends), has been modified to also give the position of words that are not present in the dictionary.
+
+Run make to use to emscripten to compile into WebAssembly. Than copy the files in ./out/ to background folder of the extension.
