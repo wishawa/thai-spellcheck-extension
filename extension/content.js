@@ -1,14 +1,17 @@
 
 browser.runtime.onMessage.addListener(handleRequest);
 
+
+var checkingEnabled = false;
 function handleRequest(request, sender, callback) {
-    if (request.action === "toggleAutoCheck") {
-        autoCheckOnDomain = false;
-    } else if (request.action === 'getCurrentText') {
-        callback(getCurrentText());
+    if (request.action === "turnCheckOn") {
+        turnCheckOn();
+        callback(1);
+    } else if (request.action === 'turnCheckOff') {
+        turnCheckOff();
+        callback(2);
     } else {
-        alert(`Unknown action: ${request.action}`);
-        Tools.track("internal", `Unknown action: ${request.action}`);
+        console.warn('Unknown action sent to tsc');
     }
 }
 
@@ -111,11 +114,7 @@ function createHighlightOverlay(elem) {
     elem.classList.add('tsc-highlighted-element');
 
 }
-function onInput() {
-    setTimeout(function() {
-        recheckPage(checkText);
-    }, 100);
-}
+
 async function doSize() {
     if(!currentHighlightOverlay) return 0;
     var parent = currentActiveElement.parentNode;
@@ -149,7 +148,7 @@ async function doScroll() {
 }
 
 async function recheckPage(callback) {
-    if(document.activeElement != currentActiveElement) {
+    if(document.activeElement != currentActiveElement || (currentActiveElement && !checkingEnabled)) {
         //console.log("active element changed!");
         currentActiveElement.classList.remove('tsc-highlighted-element');
         currentActiveElement.removeEventListener('scroll', doScroll);
@@ -158,7 +157,7 @@ async function recheckPage(callback) {
         currentActiveElement.removeEventListener('blur', mainEvent);
         currentActiveElement.removeEventListener('input', mainEvent);
         currentActiveElement = document.activeElement;
-        if(isInput(currentActiveElement)) {
+        if(isInput(currentActiveElement) && checkingEnabled) {
             //console.log("New active element is input!");
             isActiveElementScrollableY = -1;
             isActiveElementScrollableX = -1;
@@ -170,7 +169,7 @@ async function recheckPage(callback) {
             if(currentHighlightOverlay && currentHighlightOverlay.parentNode) currentHighlightOverlay.parentNode.removeChild(currentHighlightOverlay);
         }
     }
-    if(isActiveElementInput) {
+    if(isActiveElementInput && checkingEnabled) {
         callback(getCurrentText());
     }
 }
@@ -207,6 +206,8 @@ function getMarkupListOfActiveElement(elem) {
 }
 var previousText = [];
 var previousResult = [];
+
+var containsThaiRegex = /[ก-๛]/;
 function checkText(text) {
     var textToSend = [];
     var textToUse = Array(text.length);
@@ -218,7 +219,7 @@ function checkText(text) {
                 //console.log("reusing: " + text[i]['text'] + "  " + previousText[i]['text']);
         }
         else {
-            if('text' in text[i]) {
+            if('text' in text[i] && containsThaiRegex.test(text[i]['text'])) {
                 textToSend.push(text[i]['text']);
                 toFill.push(i);
                 //console.log("sending: " + text[i]['text']);
@@ -271,13 +272,87 @@ function checkText(text) {
         previousText = text;
     });
 }
-var nowTime = 0;
-var lastCheckTime = 0;
+var nowTime;
+var lastCheckTime;
 var shouldCheck = false;
+var interval1sec = -1;
+var interval3600sec = -1;
 
-document.addEventListener('keyup', function() {setTimeout(mainEvent, 100);});
-document.addEventListener('mousedown', function() {setTimeout(mainEvent, 100);});
+function turnCheckOn() {
+    if(checkingEnabled) return 0;
+    checkingEnabled = true;
+    nowTime = 0;
+    lastCheckTime = -1;
+    document.addEventListener('keyup', mainEvent100);
+    document.addEventListener('mousedown', mainEvent100);
+    //console.log('dealing with intervals');
+    if(interval1sec != -1) {
+        clearInterval(interval1sec);
+        interval1sec = -1;
+    }
+    if(interval3600sec != -1) {
+        clearInterval(interval3600sec);
+        interval3600sec = -1;
+    }
+    //console.log('setting interval 1');
+    interval1sec = setInterval(function() {
+        nowTime += 1;
+        if(shouldCheck) {
+            lastCheckTime = nowTime;
+            shouldCheck = false;
+            recheckPage(checkText);
+        }
+        if(!currentHighlightOverlay) return;
+        if(currentHighlightOverlay.scrollTop != currentActiveElement.scrollTop ||
+            currentHighlightOverlay.scrollLeft != currentActiveElement.scrollLeft) {
+            doScroll();
+        }
+        if(currentHighlightOverlay.offsetWidth != currentActiveElement.offsetWidth ||
+            currentHighlightOverlay.offsetHeight != currentActiveElement.offsetHeight ||
+            currentHighlightOverlay.offsetLeft != currentActiveElement.offsetLeft ||
+            currentHighlightOverlay.offsetTop != currentActiveElement.offsetTop) {
+            doSize();
+        }
+
+    }, 1000);
+    //console.log('setting interval 3600');
+    interval3600sec = setInterval(function() {
+        nowTime = 0;
+        lastCheckTime = 0;
+    }, 3600000);
+    recheckPage(checkText);
+    //console.log("turned on");
+}
+function turnCheckOff() {
+    if(!checkingEnabled) return 0;
+    checkingEnabled = false;
+    //console.log("turning off");
+    document.removeEventListener('keyup', mainEvent100);
+    document.removeEventListener('mousedown', mainEvent100);
+    //console.log('dealing with intervals');
+    if(interval1sec != -1) {
+        clearInterval(interval1sec);
+        interval1sec = -1;
+    }
+    if(interval3600sec != -1) {
+        clearInterval(interval3600sec);
+        interval3600sec = -1;
+    }
+    nowTime = 0;
+    lastCheckTime = 0;
+    recheckPage(function(r) {console.warn("Toggling spellcheck produced unexpected result: " + r);});
+    //console.log("turned off");
+}
+
+
+function mainEvent100() {
+    setTimeout(mainEvent, 100);
+}
 function mainEvent() {
+    if(!checkingEnabled) {
+        console.warn("Spellchecker called while turned off");
+        return 0;
+    }
     if(nowTime > lastCheckTime) {
         lastCheckTime = nowTime;
         shouldCheck = false;
@@ -287,30 +362,7 @@ function mainEvent() {
         shouldCheck = true;
     }
 };
-var interval1sec = setInterval(function() {
-    nowTime += 1;
-    if(shouldCheck) {
-        lastCheckTime = nowTime;
-        shouldCheck = false;
-        recheckPage(checkText);
-    }
-    if(!currentHighlightOverlay) return;
-    if(currentHighlightOverlay.scrollTop != currentActiveElement.scrollTop ||
-        currentHighlightOverlay.scrollLeft != currentActiveElement.scrollLeft) {
-        doScroll();
-    }
-    if(currentHighlightOverlay.offsetWidth != currentActiveElement.offsetWidth ||
-        currentHighlightOverlay.offsetHeight != currentActiveElement.offsetHeight ||
-        currentHighlightOverlay.offsetLeft != currentActiveElement.offsetLeft ||
-        currentHighlightOverlay.offsetTop != currentActiveElement.offsetTop) {
-        doSize();
-    }
+turnCheckOn();
 
-}, 1000);
-
-var interval3600sec = setInterval(function() {
-    nowTime = 0;
-    lastCheckTime = 0;
-}, 3600000);
 
 //console.log("content script loaded");

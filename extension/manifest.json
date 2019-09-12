@@ -4,7 +4,7 @@
     "version": "1.0",
 
     "description": "Thai spellchecker for Firefox",
-    
+
     "permissions": [
         "<all_urls>"
     ],
@@ -23,5 +23,13 @@
                 "lib/purify.js"
             ]
         }
-    ]
+    ],
+    "browser_action": {
+        "default_icon": {
+            "16": "icon/16.png",
+            "32": "icon/32.png",
+            "64": "icon/64.png"
+        },
+        "default_title": "Thai Spellchecker"
+    }
 }

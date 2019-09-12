@@ -1,6 +1,53 @@
 
 browser.runtime.onMessage.addListener(handleRequest);
 
+browser.browserAction.onClicked.addListener(handleBrowserAction);
+var extensionEnabled = true;
+browser.browserAction.setBadgeBackgroundColor({color: 'black'});
+browser.browserAction.setBadgeText({text: 'On'});
+browser.browserAction.setBadgeTextColor({color: 'green'});
+browser.browserAction.setTitle({title: 'Thai Spellchecker: On\nClick to turn off.'});
+
+function onError(error) {
+    console.warn("Error: ");
+    console.warn(error);
+}
+function sendMessageToTabs(tabs, action) {
+    for (let tab of tabs) {
+        browser.tabs.sendMessage(tab.id, {action: action}).then(function(r) {
+            if(r != 1 && r != 2) {
+                console.warn("Toggling spellcheck produces unexpected result: " + r);
+            }
+        }).catch(function(error) {
+            console.warn("Error with tab id: " + tab.id + "\nurl: " + tab.url + "\nactive: " + tab.active);
+            onError(error);
+        });
+    }
+}
+function handleBrowserAction() {
+    extensionEnabled = !extensionEnabled;
+    browser.tabs.query({
+        discarded: false
+    }).then(function(result) {
+        if(extensionEnabled) sendMessageToTabs(result, 'turnCheckOn');
+        else sendMessageToTabs(result, 'turnCheckOff');
+        if(extensionEnabled) {
+            browser.browserAction.setBadgeText({text: 'On'});
+            browser.browserAction.setBadgeTextColor({color: 'green'});
+            browser.browserAction.setTitle({title: 'Thai Spellchecker: On\nClick to turn off.'});
+            sendMessageToTabs()
+        }
+        else {
+            browser.browserAction.setBadgeText({text: 'Off'});
+            browser.browserAction.setBadgeTextColor({color: 'red'});
+            browser.browserAction.setTitle({title: 'Thai Spellchecker: Off\nClick to turn on.'});
+        }
+    }).catch(onError);
+}
+
+
+
+
 var findBreaks;
 var breaker;
 Module['onRuntimeInitialized'] = function() {
@@ -21,7 +68,6 @@ function predictCuts(text) {
      var incCount = Module.getValue(incRet, 'i32');
      var posArray = Array(res);
      var incArray = Array(incCount);
-     var v;
      for(var i=0; i<res; i++) {
          posArray[i] = Module.getValue(pos + i*4, 'i32');
      }
