@@ -59,7 +59,6 @@ function createHighlightOverlay(elem) {
     const styles = window.getComputedStyle(elem);
     if(isSimpleInput(elem)) {
         currentHighlightOverlay = document.createElement('DIV');
-        currentHighlightOverlay.id = 'tsc-highlight-overlay';
         if (styles.cssText !== '') {
             currentHighlightOverlay.style.cssText = styles.cssText;
         }
@@ -73,6 +72,8 @@ function createHighlightOverlay(elem) {
 
             currentHighlightOverlay.style.cssText = cssText;
         }
+        //currentHighlightOverlay.style.cssText = cssText;
+        currentHighlightOverlay.id = 'tsc-highlight-overlay';
 
         currentHighlightOverlay.innerText = elem.value;
         isActiveElementSimpleInput = true;
@@ -123,37 +124,24 @@ async function doSize() {
     var parent = currentActiveElement.parentNode;
     const styles = window.getComputedStyle(currentActiveElement);
     const styleLater = ['left', 'top', 'width', 'height'];
-    var cssText = Object.values(styles).reduce(function(css, propertyName) {
-        if(!styleLater.includes(propertyName)) return `${css}${propertyName}:${styles.getPropertyValue(propertyName)};`;
-        else return css;
-    });
-    //currentHighlightOverlay.style.width = currentActiveElement.clientWidth + 'px';
-    //currentHighlightOverlay.style.height = currentActiveElement.clientHeight + 2 + 'px';
-    cssText += `width:${currentActiveElement.clientWidth}px!important;`;
-    cssText += `height:${currentActiveElement.clientHeight + 2}px!important;`;
+    currentHighlightOverlay.style.width = currentActiveElement.clientWidth + 'px';
+    currentHighlightOverlay.style.height = currentActiveElement.clientHeight + 2 + 'px';
     if(isSimpleInput(currentActiveElement) && !styles.getPropertyValue('line-height')) {
         currentActiveElement.style.lineHeight = 1.25;
-        //currentHighlightOverlay.style.lineHeight = 1.25;
-        cssText += `line-height: 1.25;`
+        currentHighlightOverlay.style.lineHeight = 1.25;
     }
     if(styles.getPropertyValue('box-sizing') == 'border-box') {
         var tbw = parseFloat(styles.getPropertyValue('border-top-width').slice(0, -2));
         var lbw = parseFloat(styles.getPropertyValue('border-left-width').slice(0, -2));
-        //currentHighlightOverlay.style.top = ((currentActiveElement.offsetTop - tbw) + 'px!important');
-        cssText += `top:${currentActiveElement.offsetTop - tbw}px!important;`;
-        //currentHighlightOverlay.style.left = ((currentActiveElement.offsetLeft - tbw) + 'px!important');
-        cssText += `left:${currentActiveElement.offsetLeft - lbw}px!important;`;
+        currentHighlightOverlay.style.top = currentActiveElement.offsetTop - tbw + 'px';
+        currentHighlightOverlay.style.left = currentActiveElement.offsetLeft - lbw + 'px';
     }
     else {
         currentActiveElement.style.boxSizing = 'content-box';
-        //currentHighlightOverlay.style.top = (currentActiveElement.offsetTop + 'px!important');
-        //currentHighlightOverlay.style.left = (currentActiveElement.offsetLeft + 'px!important');
-        cssText += `top:${currentActiveElement.offsetTop}px!important;`;
-        //currentHighlightOverlay.style.left = ((currentActiveElement.offsetLeft - tbw) + 'px!important');
-        cssText += `left:${currentActiveElement.offsetLeft}px!important;`;
-        //console.log("left: " + currentActiveElement.offsetLeft + 'px!important' + " : " + window.getComputedStyle(currentHighlightOverlay,null).getPropertyValue('left'));
+        currentHighlightOverlay.style.top = currentActiveElement.offsetTop + 'px';
+        currentHighlightOverlay.style.left = currentActiveElement.offsetLeft + 'px';
     }
-    currentHighlightOverlay.style.cssText = cssText;
+    //currentHighlightOverlay.style.cssText = cssText;
 }
 var isActiveElementScrollableY = -1;
 var isActiveElementScrollableX = -1;
@@ -297,10 +285,8 @@ function checkText(text) {
             else textToUse[toFill[i]] = {text: te};
 
         }
-        //if(text.length == 1 && text[0]['text'].length == 0) currentHighlightOverlay.innerHTML = '';
-        //if(isActiveElementSimpleInput) currentHighlightOverlay.innerText = Markup.markupList2html(textToUse);
-        //else currentHighlightOverlay.innerHTML = Markup.markupList2html(textToUse);
-        currentHighlightOverlay.innerHTML = Markup.markupList2html(textToUse);
+        if(text.length == 1 && text[0]['text'].length == 0) currentHighlightOverlay.innerHTML = '';
+        else currentHighlightOverlay.innerHTML = Markup.markupList2html(textToUse);
         previousResult = textToUse;
         previousText = text;
     });
