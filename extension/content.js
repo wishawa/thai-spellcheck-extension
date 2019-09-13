@@ -25,7 +25,8 @@ styleElem.innerHTML = '\
 #tsc-highlight-overlay {\
     position: absolute!important;\
     display: block!important;\
-    box-sizing: border-box!important;\
+    margin: 0!important;\
+    box-sizing: content-box!important;\
     color: transparent!important;\
     border: none!important;\
     border-block: none!important;\
@@ -59,6 +60,7 @@ function createHighlightOverlay(elem) {
     const styles = window.getComputedStyle(elem);
     const fb = styles.getPropertyValue('flex-basis');
     if(fb != '' && fb != 'auto') {
+        console.log("flexbox");
         return;
     }
     if(isSimpleInput(elem)) {
@@ -114,7 +116,7 @@ function createHighlightOverlay(elem) {
     elem.addEventListener("scroll", doScroll);
     elem.addEventListener("resize", doSize);
     elem.addEventListener("resize", doScroll);
-    elem.addEventListener("blur", mainEvent);
+    elem.addEventListener("blur", mainEvent100);
     elem.addEventListener("input", mainEvent);
     elem.classList.add('tsc-highlighted-element');
     doSize();
@@ -170,7 +172,7 @@ async function recheckPage(callback) {
         currentActiveElement.removeEventListener('scroll', doScroll);
         currentActiveElement.removeEventListener('resize', doSize);
         currentActiveElement.removeEventListener('resize', doScroll);
-        currentActiveElement.removeEventListener('blur', mainEvent);
+        currentActiveElement.removeEventListener('blur', mainEvent100);
         currentActiveElement.removeEventListener('input', mainEvent);
         currentActiveElement = document.activeElement;
         if(isInput(currentActiveElement) && checkingEnabled) {
