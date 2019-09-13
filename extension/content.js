@@ -57,6 +57,10 @@ function createHighlightOverlay(elem) {
     }
     var parent = elem.parentNode;
     const styles = window.getComputedStyle(elem);
+    const fb = styles.getPropertyValue('flex-basis');
+    if(fb != '' && fb != 'auto') {
+        return;
+    }
     if(isSimpleInput(elem)) {
         currentHighlightOverlay = document.createElement('DIV');
         if (styles.cssText !== '') {
