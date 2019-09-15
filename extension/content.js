@@ -22,11 +22,12 @@ var currentHighlightOverlay;
 
 var styleElem = document.createElement('style');
 styleElem.innerHTML = '\
-#tsc-highlight-overlay {\
+#tsc-highlight-overlay-bi {\
     position: absolute!important;\
     display: block!important;\
     margin: 0!important;\
     box-sizing: content-box!important;\
+    opacity: 0;\
     color: transparent!important;\
     border: none!important;\
     border-block: none!important;\
@@ -38,16 +39,40 @@ styleElem.innerHTML = '\
     resize: none!important;\
     scrollbar-width: none!important;\
 }\
-#tsc-highlight-overlay *:not(tsc-error-highlight) {\
+#tsc-highlight-overlay-ce {\
+    position: absolute!important;\
+    display: block!important;\
+    visibility: hidden;\
+    color: transparent!important;\
+    border: none!important;\
+    background: transparent!important;\
+    -webkit-text-fill-color: transparent!important;\
+    -webkit-text-stroke: transparent!important;\
+    pointer-events: none!important;\
+    resize: none!important;\
+    scrollbar-width: none!important;\
+}\
+#tsc-highlight-overlay-ce *:not(tsc-error-highlight) {\
     color: transparent!important;\
     background: transparent!important;\
+    visibility: hidden!important;\
     -webkit-text-fill-color: transparent!important;\
     -webkit-text-stroke: transparent!important;\
     border-color: transparent!important;\
     pointer-events: none!important;\
 }\
 tsc-error-highlight {\
+    visibility: visible!important;\
+    color: transparent!important;\
+    background: transparent!important;\
+    -webkit-text-fill-color: transparent!important;\
+    -webkit-text-stroke: transparent!important;\
     border-bottom: 2px solid rgba(255,0,0,0.6);\
+    pointer-events: none!important;\
+}\
+.tsc-highlighted-element-bi {\
+    padding-inline-start: 0px!important;\
+    padding-inline-end: 0px!important;\
 }\
 ';
 document.body.appendChild(styleElem);
@@ -78,24 +103,29 @@ function createHighlightOverlay(elem) {
 
             currentHighlightOverlay.style.cssText = cssText;
         }
-        currentHighlightOverlay.id = 'tsc-highlight-overlay';
-
+        currentHighlightOverlay.id = 'tsc-highlight-overlay-bi';
+        elem.classList.add('tsc-highlighted-element-bi');
         currentHighlightOverlay.innerText = elem.value;
         isActiveElementSimpleInput = true;
     }
     else {
         currentHighlightOverlay = elem.cloneNode(true);
-        currentHighlightOverlay.id = 'tsc-highlight-overlay';
+        currentHighlightOverlay.id = 'tsc-highlight-overlay-ce';
+        elem.classList.add('tsc-highlighted-element-ce');
         isActiveElementSimpleInput = false;
     }
-    var lh = styles.getPropertyValue('line-height');
-    if(lh == '' || lh == 'auto') {
-        elem.style.lineHeight = 1.25;
-        currentHighlightOverlay.style.lineHeight = 1.25;
-    }
-    else {
-        elem.style.lineHeight = lh;
-        currentHighlightOverlay.style.lineHeight = lh;
+    if(isActiveElementSimpleInput) {
+        var lh = styles.getPropertyValue('line-height');
+        if(lh == '' || lh == 'auto') {
+            elem.style.lineHeight = 1.5 + '!important';
+            currentHighlightOverlay.style.lineHeight = 1.5 + '!important';
+        }
+        else {
+            elem.style.lineHeight = lh;
+            currentHighlightOverlay.style.lineHeight = lh;
+        }
+        currentHighlightOverlay.style.width = currentActiveElement.clientWidth + 'px';
+        currentHighlightOverlay.style.height = currentActiveElement.clientHeight + 2 + 'px';
     }
     if(elem.style.overflowX == '' && elem.style.overflow == '') {
         currentHighlightOverlay.style.overflowX = 'auto';
@@ -110,31 +140,33 @@ function createHighlightOverlay(elem) {
         z = 0;
     }
     currentHighlightOverlay.style.zIndex = z + 1;
-    currentHighlightOverlay.style.width = currentActiveElement.clientWidth + 'px';
-    currentHighlightOverlay.style.height = currentActiveElement.clientHeight + 2 + 'px';
     parent.insertBefore(currentHighlightOverlay, elem);
     elem.addEventListener("scroll", doScroll);
     elem.addEventListener("resize", doSize);
     elem.addEventListener("resize", doScroll);
     elem.addEventListener("blur", mainEvent100);
     elem.addEventListener("input", mainEvent);
-    elem.classList.add('tsc-highlighted-element');
+
     doSize();
     doScroll();
 
 }
 
 async function doSize() {
+    console.log("doing size");
     if(!currentHighlightOverlay) return 0;
     var parent = currentActiveElement.parentNode;
     const styles = window.getComputedStyle(currentActiveElement);
     const styleLater = ['left', 'top', 'width', 'height'];
-    currentHighlightOverlay.style.width = currentActiveElement.clientWidth + 'px';
-    currentHighlightOverlay.style.height = currentActiveElement.clientHeight + 2 + 'px';
-    if(isSimpleInput(currentActiveElement) && !styles.getPropertyValue('line-height')) {
-        currentActiveElement.style.lineHeight = 1.25;
-        currentHighlightOverlay.style.lineHeight = 1.25;
+    if(isActiveElementSimpleInput) {
+        currentHighlightOverlay.style.width = currentActiveElement.clientWidth + 'px';
+        currentHighlightOverlay.style.height = currentActiveElement.clientHeight + 2 + 'px';
     }
+    /*if(isSimpleInput(currentActiveElement) && !styles.getPropertyValue('line-height')) {
+        currentActiveElement.style.lineHeight = 1.5;
+        currentHighlightOverlay.style.lineHeight = 1.5;
+    }*/
+    if(!isActiveElementSimpleInput) return;
     if(styles.getPropertyValue('box-sizing') == 'border-box') {
         var tbw = parseFloat(styles.getPropertyValue('border-top-width').slice(0, -2));
         var lbw = parseFloat(styles.getPropertyValue('border-left-width').slice(0, -2));
@@ -142,7 +174,7 @@ async function doSize() {
         currentHighlightOverlay.style.left = currentActiveElement.offsetLeft - lbw + 'px';
     }
     else {
-        currentActiveElement.style.boxSizing = 'content-box';
+        if(isActiveElementSimpleInput) currentActiveElement.style.boxSizing = 'content-box';
         currentHighlightOverlay.style.top = currentActiveElement.offsetTop + 'px';
         currentHighlightOverlay.style.left = currentActiveElement.offsetLeft + 'px';
     }
@@ -168,7 +200,8 @@ async function doScroll() {
 }
 async function recheckPage(callback) {
     if(document.activeElement != currentActiveElement || (currentActiveElement && !checkingEnabled)) {
-        currentActiveElement.classList.remove('tsc-highlighted-element');
+        if(isActiveElementSimpleInput) currentActiveElement.classList.remove('tsc-highlighted-element-bi');
+        else currentActiveElement.classList.remove('tsc-highlighted-element-ce');
         currentActiveElement.removeEventListener('scroll', doScroll);
         currentActiveElement.removeEventListener('resize', doSize);
         currentActiveElement.removeEventListener('resize', doScroll);
@@ -332,9 +365,11 @@ function turnCheckOn() {
             currentHighlightOverlay.scrollLeft != currentActiveElement.scrollLeft) {
             doScroll();
         }
-        if(currentHighlightOverlay.clientWidth != currentActiveElement.clientWidth ||
-            currentHighlightOverlay.clientHeight != currentActiveElement.clientHeight + 2) {
-            doSize();
+        if(isActiveElementSimpleInput) {
+            if(currentHighlightOverlay.clientWidth != currentActiveElement.clientWidth ||
+                currentHighlightOverlay.clientHeight != currentActiveElement.clientHeight + 2) {
+                doSize();
+            }
         }
 
     }, 1000);
