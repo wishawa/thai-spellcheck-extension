@@ -70,6 +70,13 @@ tsc-error-highlight {\
     border-bottom: 2px solid rgba(255,0,0,0.6);\
     pointer-events: none!important;\
 }\
+.tsc-highlighted-element-ce:before {\
+    content: \"\\00a0\";\
+    display: block;\
+    overflow: hidden;\
+    height: 0;\
+    width: 0;\
+}\
 .tsc-highlighted-element-bi {\
     padding-inline-start: 0px!important;\
     padding-inline-end: 0px!important;\
@@ -112,6 +119,10 @@ function createHighlightOverlay(elem) {
         currentHighlightOverlay = elem.cloneNode(true);
         currentHighlightOverlay.id = 'tsc-highlight-overlay-ce';
         elem.classList.add('tsc-highlighted-element-ce');
+        const ofy = styles.getPropertyValue('overflow-y');
+        const ofx = styles.getPropertyValue('overflow-x');
+        elem.style.overflowY = ofy;
+        elem.style.overflowX = ofx;
         isActiveElementSimpleInput = false;
     }
     if(isActiveElementSimpleInput) {
