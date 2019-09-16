@@ -27,7 +27,8 @@ styleElem.innerHTML = '\
     display: block!important;\
     box-sizing: content-box!important;\
     padding: 0!important;\
-    opacity: 0;\
+    margin: 0!important;\
+    visibility: hidden;\
     color: transparent!important;\
     border: none!important;\
     border-block: none!important;\
@@ -124,8 +125,6 @@ function createHighlightOverlay(elem) {
             elem.style.lineHeight = lh;
             currentHighlightOverlay.style.lineHeight = lh;
         }
-        currentHighlightOverlay.style.width = currentActiveElement.clientWidth + 'px';
-        currentHighlightOverlay.style.height = currentActiveElement.clientHeight + 2 + 'px';
         isActiveElementSimpleInput = true;
     }
     else {
@@ -184,12 +183,12 @@ async function doSize() {
     pr = styles.getPropertyValue('padding-right');
     if(pr == 'auto' || pr == '') pr = 0;
     else pr = parseFloat(pr.slice(0, -2));
-    currentHighlightOverlay.style.height = currentActiveElement.clientHeight - pt - pb + 1 + 'px';
+    currentHighlightOverlay.style.height = currentActiveElement.clientHeight - pt - pb + 3 + 'px';
     currentHighlightOverlay.style.width = currentActiveElement.clientWidth - pl - pr + 'px';
 
     if(styles.getPropertyValue('box-sizing') == 'content-box') {
-        currentHighlightOverlay.style.top = currentActiveElement.offsetTop + 'px';
-        currentHighlightOverlay.style.left = currentActiveElement.offsetLeft + 'px';
+        currentHighlightOverlay.style.top = currentActiveElement.offsetTop + pt + 'px';
+        currentHighlightOverlay.style.left = currentActiveElement.offsetLeft + pl + 'px';
     }
     else {
         var tbw = parseFloat(styles.getPropertyValue('border-top-width').slice(0, -2));
