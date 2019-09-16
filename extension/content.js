@@ -36,7 +36,7 @@ styleElem.innerHTML = '\
     background: transparent!important;\
     -webkit-text-fill-color: transparent!important;\
     -webkit-text-stroke: transparent!important;\
-    box-shadow: none!important;\
+    box-shadow: none;\
     outline: none!important;\
     pointer-events: none!important;\
     resize: none!important;\
@@ -51,7 +51,7 @@ styleElem.innerHTML = '\
     background: transparent!important;\
     -webkit-text-fill-color: transparent!important;\
     -webkit-text-stroke: transparent!important;\
-    box-shadow: none!important;\
+    box-shadow: none;\
     outline: none!important;\
     pointer-events: none!important;\
     resize: none!important;\
@@ -63,7 +63,7 @@ styleElem.innerHTML = '\
     visibility: hidden!important;\
     -webkit-text-fill-color: transparent!important;\
     -webkit-text-stroke: transparent!important;\
-    box-shadow: none!important;\
+    box-shadow: none;\
     outline: none!important;\
     border-color: transparent!important;\
     pointer-events: none!important;\
@@ -74,7 +74,7 @@ tsc-error-highlight {\
     background: transparent!important;\
     -webkit-text-fill-color: transparent!important;\
     -webkit-text-stroke: transparent!important;\
-    border-bottom: 2px solid rgba(255,0,0,0.6);\
+    box-shadow: 0 -2px 0 rgba(255,0,0,0.6) inset!important;\
     pointer-events: none!important;\
 }\
 .tsc-highlighted-element-ce:before {\
@@ -156,9 +156,11 @@ function createHighlightOverlay(elem) {
         var hStyles = window.getComputedStyle(currentHighlightOverlay);
         for (const i in Object.values(hStyles)) {
             var propertyName = hStyles[i];
-            var pv = styles.getPropertyValue(propertyName);
-            if(hStyles.getPropertyValue(propertyName) !== pv) {
-                currentHighlightOverlay.style[propertyName] = pv;
+            if(propertyName !== 'z-index') {
+                var pv = styles.getPropertyValue(propertyName);
+                if(hStyles.getPropertyValue(propertyName) !== pv) {
+                    currentHighlightOverlay.style[propertyName] = pv;
+                }
             }
         }
     }
@@ -202,7 +204,7 @@ async function doSize() {
         currentHighlightOverlay.style.left = currentActiveElement.offsetLeft + lbw + pl + 'px';
     }
     //if(!isActiveElementSimpleInput) return 0;
-    currentHighlightOverlay.style.height = currentActiveElement.clientHeight - pt - pb + 3 + 'px';
+    currentHighlightOverlay.style.height = currentActiveElement.clientHeight - pt - pb + 4 + 'px';
     currentHighlightOverlay.style.width = currentActiveElement.clientWidth - pl - pr + 'px';
 
 
