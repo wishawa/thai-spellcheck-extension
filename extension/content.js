@@ -47,7 +47,7 @@ styleElem.innerHTML = '\
     display: block!important;\
     visibility: hidden;\
     color: transparent!important;\
-    border: none!important;\
+    border-color: transparent!important;\
     background: transparent!important;\
     -webkit-text-fill-color: transparent!important;\
     -webkit-text-stroke: transparent!important;\
@@ -130,13 +130,11 @@ function createHighlightOverlay(elem) {
     else {
         currentHighlightOverlay = elem.cloneNode(true);
         currentHighlightOverlay.id = 'tsc-highlight-overlay-ce';
-        currentHighlightOverlay.style.cssText = cssText;
         elem.classList.add('tsc-highlighted-element-ce');
         const ofy = styles.getPropertyValue('overflow-y');
         const ofx = styles.getPropertyValue('overflow-x');
         elem.style.overflowY = ofy;
         elem.style.overflowX = ofx;
-
         isActiveElementSimpleInput = false;
     }
 
@@ -154,6 +152,16 @@ function createHighlightOverlay(elem) {
     }
     currentHighlightOverlay.style.zIndex = z + 1;
     parent.insertBefore(currentHighlightOverlay, elem);
+    if(!isActiveElementSimpleInput) {
+        var hStyles = window.getComputedStyle(currentHighlightOverlay);
+        for (const i in Object.values(hStyles)) {
+            var propertyName = hStyles[i];
+            var pv = styles.getPropertyValue(propertyName);
+            if(hStyles.getPropertyValue(propertyName) !== pv) {
+                currentHighlightOverlay.style[propertyName] = pv;
+            }
+        }
+    }
     elem.addEventListener("scroll", doScroll);
     elem.addEventListener("resize", doSize);
     elem.addEventListener("resize", doScroll);
@@ -167,13 +175,13 @@ function createHighlightOverlay(elem) {
 
 async function doSize() {
     if(!currentHighlightOverlay) return 0;
-    if(!isActiveElementSimpleInput) return;
+    if(!isActiveElementSimpleInput) return 0;
     var parent = currentActiveElement.parentNode;
     var styles = window.getComputedStyle(currentActiveElement);
 
     pt = styles.getPropertyValue('padding-top');
     if(pt == 'auto' || pt == '') pt = 0;
-    else pt =parseFloat( pt.slice(0, -2));
+    else pt = parseFloat(pt.slice(0, -2));
     pb = styles.getPropertyValue('padding-bottom');
     if(pb == 'auto' || pb == '') pb = 0;
     else pb = parseFloat(pb.slice(0, -2));
@@ -183,9 +191,6 @@ async function doSize() {
     pr = styles.getPropertyValue('padding-right');
     if(pr == 'auto' || pr == '') pr = 0;
     else pr = parseFloat(pr.slice(0, -2));
-    currentHighlightOverlay.style.height = currentActiveElement.clientHeight - pt - pb + 3 + 'px';
-    currentHighlightOverlay.style.width = currentActiveElement.clientWidth - pl - pr + 'px';
-
     if(styles.getPropertyValue('box-sizing') == 'content-box') {
         currentHighlightOverlay.style.top = currentActiveElement.offsetTop + pt + 'px';
         currentHighlightOverlay.style.left = currentActiveElement.offsetLeft + pl + 'px';
@@ -196,6 +201,11 @@ async function doSize() {
         currentHighlightOverlay.style.top = currentActiveElement.offsetTop + tbw + pt + 'px';
         currentHighlightOverlay.style.left = currentActiveElement.offsetLeft + lbw + pl + 'px';
     }
+    //if(!isActiveElementSimpleInput) return 0;
+    currentHighlightOverlay.style.height = currentActiveElement.clientHeight - pt - pb + 3 + 'px';
+    currentHighlightOverlay.style.width = currentActiveElement.clientWidth - pl - pr + 'px';
+
+
 }
 var isActiveElementScrollableY = -1;
 var isActiveElementScrollableX = -1;
