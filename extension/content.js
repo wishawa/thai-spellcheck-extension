@@ -25,8 +25,8 @@ styleElem.innerHTML = '\
 #tsc-highlight-overlay-bi {\
     position: absolute!important;\
     display: block!important;\
-    margin: 0!important;\
     box-sizing: content-box!important;\
+    padding: 0!important;\
     opacity: 0;\
     color: transparent!important;\
     border: none!important;\
@@ -35,6 +35,8 @@ styleElem.innerHTML = '\
     background: transparent!important;\
     -webkit-text-fill-color: transparent!important;\
     -webkit-text-stroke: transparent!important;\
+    box-shadow: none!important;\
+    outline: none!important;\
     pointer-events: none!important;\
     resize: none!important;\
     scrollbar-width: none!important;\
@@ -48,6 +50,8 @@ styleElem.innerHTML = '\
     background: transparent!important;\
     -webkit-text-fill-color: transparent!important;\
     -webkit-text-stroke: transparent!important;\
+    box-shadow: none!important;\
+    outline: none!important;\
     pointer-events: none!important;\
     resize: none!important;\
     scrollbar-width: none!important;\
@@ -58,6 +62,8 @@ styleElem.innerHTML = '\
     visibility: hidden!important;\
     -webkit-text-fill-color: transparent!important;\
     -webkit-text-stroke: transparent!important;\
+    box-shadow: none!important;\
+    outline: none!important;\
     border-color: transparent!important;\
     pointer-events: none!important;\
 }\
@@ -77,10 +83,6 @@ tsc-error-highlight {\
     height: 0;\
     width: 0;\
 }\
-.tsc-highlighted-element-bi {\
-    padding-inline-start: 0px!important;\
-    padding-inline-end: 0px!important;\
-}\
 ';
 document.body.appendChild(styleElem);
 
@@ -95,37 +97,24 @@ function createHighlightOverlay(elem) {
         console.log("flexbox");
         return;
     }
+    var cssText;
+    if (styles.cssText !== '') {
+        currentHighlightOverlay.style.cssText = styles.cssText;
+    }
+    else {
+        cssText = Object.values(styles).reduce(
+            (css, propertyName) =>
+                `${css}${propertyName}:${styles.getPropertyValue(
+                    propertyName
+                )};`
+            );
+    }
     if(isSimpleInput(elem)) {
         currentHighlightOverlay = document.createElement('DIV');
-        if (styles.cssText !== '') {
-            currentHighlightOverlay.style.cssText = styles.cssText;
-        }
-        else {
-            const cssText = Object.values(styles).reduce(
-                (css, propertyName) =>
-                    `${css}${propertyName}:${styles.getPropertyValue(
-                        propertyName
-                    )};`
-                );
-
-            currentHighlightOverlay.style.cssText = cssText;
-        }
+        currentHighlightOverlay.style.cssText = cssText;
         currentHighlightOverlay.id = 'tsc-highlight-overlay-bi';
         elem.classList.add('tsc-highlighted-element-bi');
         currentHighlightOverlay.innerText = elem.value;
-        isActiveElementSimpleInput = true;
-    }
-    else {
-        currentHighlightOverlay = elem.cloneNode(true);
-        currentHighlightOverlay.id = 'tsc-highlight-overlay-ce';
-        elem.classList.add('tsc-highlighted-element-ce');
-        const ofy = styles.getPropertyValue('overflow-y');
-        const ofx = styles.getPropertyValue('overflow-x');
-        elem.style.overflowY = ofy;
-        elem.style.overflowX = ofx;
-        isActiveElementSimpleInput = false;
-    }
-    if(isActiveElementSimpleInput) {
         var lh = styles.getPropertyValue('line-height');
         if(lh == '' || lh == 'auto') {
             elem.style.lineHeight = 1.5 + '!important';
@@ -137,7 +126,21 @@ function createHighlightOverlay(elem) {
         }
         currentHighlightOverlay.style.width = currentActiveElement.clientWidth + 'px';
         currentHighlightOverlay.style.height = currentActiveElement.clientHeight + 2 + 'px';
+        isActiveElementSimpleInput = true;
     }
+    else {
+        currentHighlightOverlay = elem.cloneNode(true);
+        currentHighlightOverlay.id = 'tsc-highlight-overlay-ce';
+        currentHighlightOverlay.style.cssText = cssText;
+        elem.classList.add('tsc-highlighted-element-ce');
+        const ofy = styles.getPropertyValue('overflow-y');
+        const ofx = styles.getPropertyValue('overflow-x');
+        elem.style.overflowY = ofy;
+        elem.style.overflowX = ofx;
+
+        isActiveElementSimpleInput = false;
+    }
+
     if(elem.style.overflowX == '' && elem.style.overflow == '') {
         currentHighlightOverlay.style.overflowX = 'auto';
     }
@@ -164,30 +167,35 @@ function createHighlightOverlay(elem) {
 }
 
 async function doSize() {
-    console.log("doing size");
     if(!currentHighlightOverlay) return 0;
-    var parent = currentActiveElement.parentNode;
-    const styles = window.getComputedStyle(currentActiveElement);
-    const styleLater = ['left', 'top', 'width', 'height'];
-    if(isActiveElementSimpleInput) {
-        currentHighlightOverlay.style.width = currentActiveElement.clientWidth + 'px';
-        currentHighlightOverlay.style.height = currentActiveElement.clientHeight + 2 + 'px';
-    }
-    /*if(isSimpleInput(currentActiveElement) && !styles.getPropertyValue('line-height')) {
-        currentActiveElement.style.lineHeight = 1.5;
-        currentHighlightOverlay.style.lineHeight = 1.5;
-    }*/
     if(!isActiveElementSimpleInput) return;
-    if(styles.getPropertyValue('box-sizing') == 'border-box') {
-        var tbw = parseFloat(styles.getPropertyValue('border-top-width').slice(0, -2));
-        var lbw = parseFloat(styles.getPropertyValue('border-left-width').slice(0, -2));
-        currentHighlightOverlay.style.top = currentActiveElement.offsetTop - tbw + 'px';
-        currentHighlightOverlay.style.left = currentActiveElement.offsetLeft - lbw + 'px';
-    }
-    else {
-        if(isActiveElementSimpleInput) currentActiveElement.style.boxSizing = 'content-box';
+    var parent = currentActiveElement.parentNode;
+    var styles = window.getComputedStyle(currentActiveElement);
+
+    pt = styles.getPropertyValue('padding-top');
+    if(pt == 'auto' || pt == '') pt = 0;
+    else pt =parseFloat( pt.slice(0, -2));
+    pb = styles.getPropertyValue('padding-bottom');
+    if(pb == 'auto' || pb == '') pb = 0;
+    else pb = parseFloat(pb.slice(0, -2));
+    pl = styles.getPropertyValue('padding-left');
+    if(pl == 'auto' || pl == '') pl = 0;
+    else pl = parseFloat(pl.slice(0, -2));
+    pr = styles.getPropertyValue('padding-right');
+    if(pr == 'auto' || pr == '') pr = 0;
+    else pr = parseFloat(pr.slice(0, -2));
+    currentHighlightOverlay.style.height = currentActiveElement.clientHeight - pt - pb + 1 + 'px';
+    currentHighlightOverlay.style.width = currentActiveElement.clientWidth - pl - pr + 'px';
+
+    if(styles.getPropertyValue('box-sizing') == 'content-box') {
         currentHighlightOverlay.style.top = currentActiveElement.offsetTop + 'px';
         currentHighlightOverlay.style.left = currentActiveElement.offsetLeft + 'px';
+    }
+    else {
+        var tbw = parseFloat(styles.getPropertyValue('border-top-width').slice(0, -2));
+        var lbw = parseFloat(styles.getPropertyValue('border-left-width').slice(0, -2));
+        currentHighlightOverlay.style.top = currentActiveElement.offsetTop + tbw + pt + 'px';
+        currentHighlightOverlay.style.left = currentActiveElement.offsetLeft + lbw + pl + 'px';
     }
 }
 var isActiveElementScrollableY = -1;
