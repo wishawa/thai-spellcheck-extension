@@ -21,7 +21,9 @@
                 "util.js",
                 "lib/markup.js",
                 "lib/purify.js"
-            ]
+            ],
+            "css": ["content.css"],
+            "all_frames": true
         }
     ],
     "browser_action": {

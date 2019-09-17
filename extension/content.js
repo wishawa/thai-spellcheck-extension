@@ -20,72 +20,6 @@ var isActiveElementInput;
 var isActiveElementSimpleInput;
 var currentHighlightOverlay;
 
-var styleElem = document.createElement('style');
-styleElem.innerHTML = '\
-#tsc-highlight-overlay-bi {\
-    position: absolute!important;\
-    display: block!important;\
-    box-sizing: content-box!important;\
-    padding: 0!important;\
-    margin: 0!important;\
-    visibility: hidden;\
-    color: transparent!important;\
-    border: none!important;\
-    border-block: none!important;\
-    border-inline: none!important;\
-    background: transparent!important;\
-    -webkit-text-fill-color: transparent!important;\
-    -webkit-text-stroke: transparent!important;\
-    box-shadow: none;\
-    outline: none!important;\
-    pointer-events: none!important;\
-    resize: none!important;\
-    scrollbar-width: none!important;\
-}\
-#tsc-highlight-overlay-ce {\
-    position: absolute!important;\
-    display: block!important;\
-    visibility: hidden;\
-    color: transparent!important;\
-    border-color: transparent!important;\
-    background: transparent!important;\
-    -webkit-text-fill-color: transparent!important;\
-    -webkit-text-stroke: transparent!important;\
-    box-shadow: none;\
-    outline: none!important;\
-    pointer-events: none!important;\
-    resize: none!important;\
-    scrollbar-width: none!important;\
-}\
-#tsc-highlight-overlay-ce *:not(tsc-error-highlight) {\
-    color: transparent!important;\
-    background: transparent!important;\
-    visibility: hidden!important;\
-    -webkit-text-fill-color: transparent!important;\
-    -webkit-text-stroke: transparent!important;\
-    box-shadow: none;\
-    outline: none!important;\
-    border-color: transparent!important;\
-    pointer-events: none!important;\
-}\
-tsc-error-highlight {\
-    visibility: visible!important;\
-    color: transparent!important;\
-    background: transparent!important;\
-    -webkit-text-fill-color: transparent!important;\
-    -webkit-text-stroke: transparent!important;\
-    box-shadow: 0 -2px 0 rgba(255,0,0,0.6) inset!important;\
-    pointer-events: none!important;\
-}\
-.tsc-highlighted-element-ce:before {\
-    content: \"\\00a0\";\
-    display: block;\
-    overflow: hidden;\
-    height: 0;\
-    width: 0;\
-}\
-';
-document.body.appendChild(styleElem);
 
 function createHighlightOverlay(elem) {
     if(currentHighlightOverlay && currentHighlightOverlay.parentNode) {
@@ -277,17 +211,7 @@ function getMarkupListOfActiveElement(elem) {
         return [{ text: elem.value }];
     } else if (elem.hasAttribute("contenteditable")) {
         return Markup.html2markupList(elem.innerHTML, document);
-    } else if (elem.tagName === "IFRAME") {
-        const activeElem = elem.contentWindow.document.activeElement;
-        if (activeElem.innerHTML) {
-            return Markup.html2markupList(activeElem.innerHTML, document);
-        } else if (activeElem.textContent) {
-            // not sure if this case ever happens?
-            return [{ text: activeElem.textContent.toString() }];
-        } else {
-            throw "placeCursor1";
-        }
-    } else {
+    } else if (elem.tagName !== "IFRAME") {
         if (elem) {
             throw "placeCursor2";
         } else {
