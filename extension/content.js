@@ -28,10 +28,6 @@ function createHighlightOverlay(elem) {
     var parent = elem.parentNode;
     const styles = window.getComputedStyle(elem);
     const fb = styles.getPropertyValue('flex-basis');
-    if(fb != '' && fb != 'auto') {
-        console.log("flexbox");
-        return;
-    }
     var cssText;
     if (styles.cssText !== '') {
         currentHighlightOverlay.style.cssText = styles.cssText;
@@ -148,7 +144,6 @@ async function doSize() {
         currentHighlightOverlay.style.top = ot + tbw + pt + 'px';
         currentHighlightOverlay.style.left = ol + lbw + pl + 'px';
     }
-    //if(!isActiveElementSimpleInput) return 0;
     currentHighlightOverlay.style.height = currentActiveElement.clientHeight - pt - pb + 4 + 'px';
     currentHighlightOverlay.style.width = currentActiveElement.clientWidth - pl - pr + 'px';
 
@@ -203,9 +198,6 @@ function getCurrentText() {
     return getMarkupListOfActiveElement(document.activeElement);
 }
 
-// Note: document.activeElement sometimes seems to be wrong, e.g. on languagetool.org
-// it sometimes points to the language selection drop down even when the cursor
-// is inside the text field - probably related to the iframe...
 function getMarkupListOfActiveElement(elem) {
     if (isSimpleInput(elem)) {
         return [{ text: elem.value }];
