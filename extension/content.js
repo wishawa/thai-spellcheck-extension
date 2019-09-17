@@ -31,7 +31,15 @@ function createHighlightOverlay(elem) {
 
     if(isSimpleInput(elem)) {
         currentHighlightOverlay = document.createElement('DIV');
-
+        for (const i in Object.values(styles)) {
+            var propertyName = styles[i];
+            if(propertyName !== 'z-index') {
+                var pv = styles.getPropertyValue(propertyName);
+                if(pv !== '') {
+                    currentHighlightOverlay.style[propertyName] = pv;
+                }
+            }
+        }
         currentHighlightOverlay.id = 'tsc-highlight-overlay-bi';
         elem.classList.add('tsc-highlighted-element-bi');
         currentHighlightOverlay.innerText = elem.value;
@@ -63,7 +71,7 @@ function createHighlightOverlay(elem) {
     if(elem.style.overflowY == '' && elem.style.overflow == '') {
         currentHighlightOverlay.style.overflowY = 'auto';
     }
-    var z = window.getComputedStyle(elem, null).getPropertyValue('zIndex');
+    z = styles.getPropertyValue('zIndex');
     z = parseInt(z);
     if(isNaN(z)) {
         elem.style.zIndex = 0;
@@ -71,13 +79,16 @@ function createHighlightOverlay(elem) {
     }
     currentHighlightOverlay.style.zIndex = z + 1;
     parent.insertBefore(currentHighlightOverlay, elem);
-    var hStyles = window.getComputedStyle(currentHighlightOverlay);
-    for (const i in Object.values(hStyles)) {
-        var propertyName = hStyles[i];
-        if(propertyName !== 'z-index') {
-            var pv = styles.getPropertyValue(propertyName);
-            if(hStyles.getPropertyValue(propertyName) !== pv) {
-                currentHighlightOverlay.style[propertyName] = pv;
+    if(!isActiveElementSimpleInput) {
+        var hStyles = window.getComputedStyle(currentHighlightOverlay);
+        for (const i in Object.values(hStyles)) {
+            var propertyName = hStyles[i];
+            if(propertyName !== 'z-index') {
+                var pv = styles.getPropertyValue(propertyName);
+                var hv = hStyles.getPropertyValue(propertyName);
+                if(hv !== pv && pv !== '') {
+                    currentHighlightOverlay.style[propertyName] = pv;
+                }
             }
         }
     }
@@ -89,7 +100,6 @@ function createHighlightOverlay(elem) {
 
     doSize();
     doScroll();
-
 }
 
 async function doSize() {
@@ -103,19 +113,19 @@ async function doSize() {
     pt = styles.getPropertyValue('padding-top');
     if(pt == 'auto' || pt == '') pt = 0;
     else pt = parseFloat(pt.slice(0, -2));
-    if(isNaN(pt)) pr = 0;
+    //if(isNaN(pt)) pr = 0;
     pb = styles.getPropertyValue('padding-bottom');
     if(pb == 'auto' || pb == '') pb = 0;
     else pb = parseFloat(pb.slice(0, -2));
-    if(isNaN(pb)) pr = 0;
+    //if(isNaN(pb)) pr = 0;
     pl = styles.getPropertyValue('padding-left');
     if(pl == 'auto' || pl == '') pl = 0;
     else pl = parseFloat(pl.slice(0, -2));
-    if(isNaN(pl)) pr = 0;
+    //if(isNaN(pl)) pr = 0;
     pr = styles.getPropertyValue('padding-right');
     if(pr == 'auto' || pr == '') pr = 0;
     else pr = parseFloat(pr.slice(0, -2));
-    if(isNaN(pr)) pr = 0;
+    //if(isNaN(pr)) pr = 0;
 
     var ot = currentActiveElement.offsetTop;
     var ol = currentActiveElement.offsetLeft;
@@ -136,10 +146,10 @@ async function doSize() {
         currentHighlightOverlay.style.left = (ol + lbw + pl) + 'px';
     }
     currentHighlightOverlay.style.height = (currentActiveElement.clientHeight - pt - pb + 4) + 'px';
+    currentHighlightOverlay.style.width = (currentActiveElement.clientWidth - pl - pr) + 'px';
     if(currentActiveElement.tagName !== "TEXTAREA") {
         currentHighlightOverlay.style.lineHeight = (currentActiveElement.clientHeight - pt - pb) + 'px';
     }
-    currentHighlightOverlay.style.width = (currentActiveElement.clientWidth - pl - pr) + 'px';
 
 
 }
