@@ -28,21 +28,10 @@ function createHighlightOverlay(elem) {
     var parent = elem.parentNode;
     const styles = window.getComputedStyle(elem);
     const fb = styles.getPropertyValue('flex-basis');
-    var cssText;
-    if (styles.cssText !== '') {
-        currentHighlightOverlay.style.cssText = styles.cssText;
-    }
-    else {
-        cssText = Object.values(styles).reduce(
-            (css, propertyName) =>
-                `${css}${propertyName}:${styles.getPropertyValue(
-                    propertyName
-                )};`
-            );
-    }
+
     if(isSimpleInput(elem)) {
         currentHighlightOverlay = document.createElement('DIV');
-        currentHighlightOverlay.style.cssText = cssText;
+
         currentHighlightOverlay.id = 'tsc-highlight-overlay-bi';
         elem.classList.add('tsc-highlighted-element-bi');
         currentHighlightOverlay.innerText = elem.value;
@@ -82,15 +71,13 @@ function createHighlightOverlay(elem) {
     }
     currentHighlightOverlay.style.zIndex = z + 1;
     parent.insertBefore(currentHighlightOverlay, elem);
-    if(!isActiveElementSimpleInput) {
-        var hStyles = window.getComputedStyle(currentHighlightOverlay);
-        for (const i in Object.values(hStyles)) {
-            var propertyName = hStyles[i];
-            if(propertyName !== 'z-index') {
-                var pv = styles.getPropertyValue(propertyName);
-                if(hStyles.getPropertyValue(propertyName) !== pv) {
-                    currentHighlightOverlay.style[propertyName] = pv;
-                }
+    var hStyles = window.getComputedStyle(currentHighlightOverlay);
+    for (const i in Object.values(hStyles)) {
+        var propertyName = hStyles[i];
+        if(propertyName !== 'z-index') {
+            var pv = styles.getPropertyValue(propertyName);
+            if(hStyles.getPropertyValue(propertyName) !== pv) {
+                currentHighlightOverlay.style[propertyName] = pv;
             }
         }
     }
@@ -116,15 +103,19 @@ async function doSize() {
     pt = styles.getPropertyValue('padding-top');
     if(pt == 'auto' || pt == '') pt = 0;
     else pt = parseFloat(pt.slice(0, -2));
+    if(isNaN(pt)) pr = 0;
     pb = styles.getPropertyValue('padding-bottom');
     if(pb == 'auto' || pb == '') pb = 0;
     else pb = parseFloat(pb.slice(0, -2));
+    if(isNaN(pb)) pr = 0;
     pl = styles.getPropertyValue('padding-left');
     if(pl == 'auto' || pl == '') pl = 0;
     else pl = parseFloat(pl.slice(0, -2));
+    if(isNaN(pl)) pr = 0;
     pr = styles.getPropertyValue('padding-right');
     if(pr == 'auto' || pr == '') pr = 0;
     else pr = parseFloat(pr.slice(0, -2));
+    if(isNaN(pr)) pr = 0;
 
     var ot = currentActiveElement.offsetTop;
     var ol = currentActiveElement.offsetLeft;
@@ -135,17 +126,20 @@ async function doSize() {
         ol += activeOffsetParentBB.left - highlightOffsetParentBB.left;
     }
     if(styles.getPropertyValue('box-sizing') == 'content-box') {
-        currentHighlightOverlay.style.top = ot + pt + 'px';
-        currentHighlightOverlay.style.left = ol + pl + 'px';
+        currentHighlightOverlay.style.top = (ot + pt) + 'px';
+        currentHighlightOverlay.style.left = (ol + pl) + 'px';
     }
     else {
         var tbw = parseFloat(styles.getPropertyValue('border-top-width').slice(0, -2));
         var lbw = parseFloat(styles.getPropertyValue('border-left-width').slice(0, -2));
-        currentHighlightOverlay.style.top = ot + tbw + pt + 'px';
-        currentHighlightOverlay.style.left = ol + lbw + pl + 'px';
+        currentHighlightOverlay.style.top = (ot + tbw + pt) + 'px';
+        currentHighlightOverlay.style.left = (ol + lbw + pl) + 'px';
     }
-    currentHighlightOverlay.style.height = currentActiveElement.clientHeight - pt - pb + 4 + 'px';
-    currentHighlightOverlay.style.width = currentActiveElement.clientWidth - pl - pr + 'px';
+    currentHighlightOverlay.style.height = (currentActiveElement.clientHeight - pt - pb + 4) + 'px';
+    if(currentActiveElement.tagName !== "TEXTAREA") {
+        currentHighlightOverlay.style.lineHeight = (currentActiveElement.clientHeight - pt - pb) + 'px';
+    }
+    currentHighlightOverlay.style.width = (currentActiveElement.clientWidth - pl - pr) + 'px';
 
 
 }
