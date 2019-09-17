@@ -177,7 +177,9 @@ function createHighlightOverlay(elem) {
 
 async function doSize() {
     if(!currentHighlightOverlay) return 0;
-    if(!isActiveElementSimpleInput) return 0;
+    if(!isActiveElementSimpleInput) {
+        return 0;
+    }
     var parent = currentActiveElement.parentNode;
     var styles = window.getComputedStyle(currentActiveElement);
 
@@ -193,15 +195,24 @@ async function doSize() {
     pr = styles.getPropertyValue('padding-right');
     if(pr == 'auto' || pr == '') pr = 0;
     else pr = parseFloat(pr.slice(0, -2));
+
+    var ot = currentActiveElement.offsetTop;
+    var ol = currentActiveElement.offsetLeft;
+    if(currentHighlightOverlay.offsetParent !== currentActiveElement.offsetParent) {
+        var highlightOffsetParentBB = currentHighlightOverlay.offsetParent.getBoundingClientRect();
+        var activeOffsetParentBB = currentActiveElement.offsetParent.getBoundingClientRect();
+        ot += activeOffsetParentBB.top - highlightOffsetParentBB.top;
+        ol += activeOffsetParentBB.left - highlightOffsetParentBB.left;
+    }
     if(styles.getPropertyValue('box-sizing') == 'content-box') {
-        currentHighlightOverlay.style.top = currentActiveElement.offsetTop + pt + 'px';
-        currentHighlightOverlay.style.left = currentActiveElement.offsetLeft + pl + 'px';
+        currentHighlightOverlay.style.top = ot + pt + 'px';
+        currentHighlightOverlay.style.left = ol + pl + 'px';
     }
     else {
         var tbw = parseFloat(styles.getPropertyValue('border-top-width').slice(0, -2));
         var lbw = parseFloat(styles.getPropertyValue('border-left-width').slice(0, -2));
-        currentHighlightOverlay.style.top = currentActiveElement.offsetTop + tbw + pt + 'px';
-        currentHighlightOverlay.style.left = currentActiveElement.offsetLeft + lbw + pl + 'px';
+        currentHighlightOverlay.style.top = ot + tbw + pt + 'px';
+        currentHighlightOverlay.style.left = ol + lbw + pl + 'px';
     }
     //if(!isActiveElementSimpleInput) return 0;
     currentHighlightOverlay.style.height = currentActiveElement.clientHeight - pt - pb + 4 + 'px';
