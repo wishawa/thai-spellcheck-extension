@@ -19,6 +19,7 @@ var currentActiveElement = document.body;
 var isActiveElementInput;
 var isActiveElementSimpleInput;
 var currentHighlightOverlay;
+const ignoreArray = ['z-index', 'inset', 'inset-inline', 'display', 'position', 'top', 'left', 'bottom', 'right', 'margin-top', 'margin-left', 'margin-bottom', 'margin-right'];
 
 
 function createHighlightOverlay(elem) {
@@ -93,13 +94,39 @@ function createHighlightOverlay(elem) {
     parent.insertBefore(currentHighlightOverlay, elem);
     if(!isActiveElementSimpleInput) {
         var hStyles = window.getComputedStyle(currentHighlightOverlay);
-        for (const i in Object.values(hStyles)) {
-            var propertyName = hStyles[i];
-            if(propertyName !== 'z-index') {
-                var pv = styles.getPropertyValue(propertyName);
-                var hv = hStyles.getPropertyValue(propertyName);
-                if(hv !== pv && pv !== '') {
-                    currentHighlightOverlay.style[propertyName] = pv;
+        var highlightBB = currentHighlightOverlay.getBoundingClientRect();
+        var activeBB = elem.getBoundingClientRect();
+        if(Math.abs(highlightBB.top - activeBB.left) > 3 || Math.abs(highlightBB.left - activeBB.left) > 3) {
+            for (const i in Object.values(hStyles)) {
+                var propertyName = hStyles[i];
+                if(!ignoreArray.includes(propertyName)) {
+                    var pv = styles.getPropertyValue(propertyName);
+                    var hv = hStyles.getPropertyValue(propertyName);
+                    if(hv !== pv && pv !== '') {
+                        currentHighlightOverlay.style[propertyName] = pv;
+                    }
+                }
+            }
+            var ot = elem.offsetTop;
+            var ol = elem.offsetLeft;
+            if(currentHighlightOverlay.offsetParent !== currentActiveElement.offsetParent) {
+                var highlightOffsetParentBB = currentHighlightOverlay.offsetParent.getBoundingClientRect();
+                var activeOffsetParentBB = currentActiveElement.offsetParent.getBoundingClientRect();
+                ot += activeOffsetParentBB.top - highlightOffsetParentBB.top;
+                ol += activeOffsetParentBB.left - highlightOffsetParentBB.left;
+            }
+            currentHighlightOverlay.style.top = (ot) + 'px';
+            currentHighlightOverlay.style.left = (ol) + 'px';
+        }
+        else {
+            for (const i in Object.values(hStyles)) {
+                var propertyName = hStyles[i];
+                if(propertyName !== 'z-index') {
+                    var pv = styles.getPropertyValue(propertyName);
+                    var hv = hStyles.getPropertyValue(propertyName);
+                    if(hv !== pv && pv !== '') {
+                        currentHighlightOverlay.style[propertyName] = pv;
+                    }
                 }
             }
         }
