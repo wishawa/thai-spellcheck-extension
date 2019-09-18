@@ -9,8 +9,7 @@ browser.browserAction.setBadgeTextColor({color: 'green'});
 browser.browserAction.setTitle({title: 'Thai Spellchecker: On\nClick to turn off.'});
 
 function onError(error) {
-    console.warn("Error: ");
-    console.warn(error);
+    console.warn(`Error: ${error}`);
 }
 function sendMessageToTabs(tabs, action) {
     for (let tab of tabs) {
@@ -35,7 +34,6 @@ function handleBrowserAction() {
             browser.browserAction.setBadgeText({text: 'On'});
             browser.browserAction.setBadgeTextColor({color: 'green'});
             browser.browserAction.setTitle({title: 'Thai Spellchecker: On\nClick to turn off.'});
-            sendMessageToTabs()
         }
         else {
             browser.browserAction.setBadgeText({text: 'Off'});
@@ -82,19 +80,21 @@ function predictCuts(text) {
 }
 
 
-function handleRequest(request, sender, callback) {
-    /*if(request.action === "checkText") {
-        checkText(request.text, callback);
-    }*/
-    checkText(request, callback)
+function handleRequest(request, sender, sendResponse) {
+    if(request === 'getStatus') {
+        return Promise.resolve(extensionEnabled);
+    }
+    else {
+        return Promise.resolve(checkText(request));
+    }
 }
 
-function checkText(textObj, callback) {
+function checkText(textObj) {
     var ret = Array(textObj.length);
     for(var i=0; i<textObj.length; i++) {
         ret[i] = predictCuts(textObj[i]);
     }
-    callback(ret);
+    return ret;
 }
 
 //console.log("background.js loaded");

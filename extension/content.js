@@ -4,12 +4,12 @@ browser.runtime.onMessage.addListener(handleRequest);
 
 var checkingEnabled = false;
 function handleRequest(request, sender, callback) {
-    if (request.action === "turnCheckOn") {
+    if (request.action === 'turnCheckOn') {
         turnCheckOn();
-        callback(1);
+        return Promise.resolve(1);
     } else if (request.action === 'turnCheckOff') {
         turnCheckOff();
-        callback(2);
+        return Promise.resolve(2);
     } else {
         console.warn('Unknown action sent to tsc');
     }
@@ -40,18 +40,25 @@ function createHighlightOverlay(elem) {
                 }
             }
         }
-        currentHighlightOverlay.id = 'tsc-highlight-overlay-bi';
-        elem.classList.add('tsc-highlighted-element-bi');
-        currentHighlightOverlay.innerText = elem.value;
-        var lh = styles.getPropertyValue('line-height');
-        if(lh == '' || lh == 'auto') {
-            elem.style.lineHeight = 1.5 + '!important';
-            currentHighlightOverlay.style.lineHeight = 1.5 + '!important';
+        if(elem.tagName !== 'TEXTAREA') {
+            currentHighlightOverlay.id = 'tsc-highlight-overlay-ip';
+            currentHighlightOverlay.style.lineHeight = (currentActiveElement.clientHeight - pt - pb) + 'px';
         }
         else {
-            elem.style.lineHeight = lh;
-            currentHighlightOverlay.style.lineHeight = lh;
+            currentHighlightOverlay.id = 'tsc-highlight-overlay-ta';
+            var lh = styles.getPropertyValue('line-height');
+            if(lh == '' || lh == 'auto') {
+                elem.style.lineHeight = 1.5 + '!important';
+                currentHighlightOverlay.style.lineHeight = 1.5 + '!important';
+            }
+            else {
+                elem.style.lineHeight = lh;
+                currentHighlightOverlay.style.lineHeight = lh;
+            }
         }
+        elem.classList.add('tsc-highlighted-element-bi');
+        currentHighlightOverlay.innerText = elem.value;
+
         isActiveElementSimpleInput = true;
     }
     else {
@@ -113,19 +120,15 @@ async function doSize() {
     pt = styles.getPropertyValue('padding-top');
     if(pt == 'auto' || pt == '') pt = 0;
     else pt = parseFloat(pt.slice(0, -2));
-    //if(isNaN(pt)) pr = 0;
     pb = styles.getPropertyValue('padding-bottom');
     if(pb == 'auto' || pb == '') pb = 0;
     else pb = parseFloat(pb.slice(0, -2));
-    //if(isNaN(pb)) pr = 0;
     pl = styles.getPropertyValue('padding-left');
     if(pl == 'auto' || pl == '') pl = 0;
     else pl = parseFloat(pl.slice(0, -2));
-    //if(isNaN(pl)) pr = 0;
     pr = styles.getPropertyValue('padding-right');
     if(pr == 'auto' || pr == '') pr = 0;
     else pr = parseFloat(pr.slice(0, -2));
-    //if(isNaN(pr)) pr = 0;
 
     var ot = currentActiveElement.offsetTop;
     var ol = currentActiveElement.offsetLeft;
@@ -147,9 +150,6 @@ async function doSize() {
     }
     currentHighlightOverlay.style.height = (currentActiveElement.clientHeight - pt - pb + 4) + 'px';
     currentHighlightOverlay.style.width = (currentActiveElement.clientWidth - pl - pr) + 'px';
-    if(currentActiveElement.tagName !== "TEXTAREA") {
-        currentHighlightOverlay.style.lineHeight = (currentActiveElement.clientHeight - pt - pb) + 'px';
-    }
 
 
 }
@@ -340,10 +340,6 @@ function turnCheckOn() {
         lastCheckTime = 0;
     }, 3600000);
     mainEvent100();
-
-    /* ||
-    currentHighlightOverlay.offsetLeft != currentActiveElement.offsetLeft ||
-    currentHighlightOverlay.offsetTop != currentActiveElement.offsetTop*/
 }
 function turnCheckOff() {
     if(!checkingEnabled) return 0;
@@ -384,4 +380,10 @@ function mainEvent() {
         shouldCheck = true;
     }
 };
-turnCheckOn();
+var gettingStatus = browser.runtime.sendMessage('getStatus');
+gettingStatus.catch(function(e) {
+    console.warn('tsc background process response error');
+});
+gettingStatus.then(function(r) {
+    if(r === true) turnCheckOn();
+});

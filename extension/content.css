@@ -1,4 +1,4 @@
-#tsc-highlight-overlay-bi {
+#tsc-highlight-overlay-ip, #tsc-highlight-overlay-ta {
     position: absolute!important;
     display: block!important;
     box-sizing: content-box!important;
@@ -17,6 +17,12 @@
     pointer-events: none!important;
     resize: none!important;
     scrollbar-width: none!important;
+}
+#tsc-highlight-overlay-ip {
+    white-space: nowrap!important;
+}
+#tsc-higlight-overlay-ip * {
+    display: inline-block!important;
 }
 #tsc-highlight-overlay-ce {
     position: absolute!important;
