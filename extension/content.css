@@ -12,7 +12,7 @@
     background: transparent!important;
     -webkit-text-fill-color: transparent!important;
     -webkit-text-stroke: transparent!important;
-    box-shadow: none;
+    box-shadow: none!important;
     outline: none!important;
     pointer-events: none!important;
     resize: none!important;
