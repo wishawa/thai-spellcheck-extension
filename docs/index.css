@@ -29,7 +29,7 @@
     }
 }
 body {
-    font-family: serif;
+    font-family: sans-serif;
     text-align: center;
     animation-name: fade_in;
     animation-duration: 0.8s;

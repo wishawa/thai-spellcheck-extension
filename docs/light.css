@@ -11,7 +11,7 @@
     --highlight-color: rgba(0,0,0,1);
 }
 body {
-    font-family: serif;
+    font-family: sans-serif;
     text-align: center;
     animation-name: fade_in;
     animation-duration: 0.8s;
