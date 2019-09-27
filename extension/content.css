@@ -1,21 +1,24 @@
-#tsc-highlight-overlay-ip, #tsc-highlight-overlay-ta {
+#tsc-highlight-overlay-ip, #tsc-highlight-overlay-ta, #tsc-highlight-overlay-ce {
     position: absolute!important;
     display: block!important;
+    visibility: hidden!important;
+    color: transparent!important;
+    background: transparent!important;
+    resize: none!important;
+    pointer-events: none!important;
+    box-shadow: none!important;
+    outline: none!important;
+    -webkit-text-fill-color: transparent!important;
+    -webkit-text-stroke: transparent!important;
+}
+
+#tsc-highlight-overlay-ip, #tsc-highlight-overlay-ta {
     box-sizing: content-box!important;
     padding: 0!important;
     margin: 0!important;
-    visibility: hidden;
-    color: transparent!important;
     border: none!important;
     border-block: none!important;
     border-inline: none!important;
-    background: transparent!important;
-    -webkit-text-fill-color: transparent!important;
-    -webkit-text-stroke: transparent!important;
-    box-shadow: none!important;
-    outline: none!important;
-    pointer-events: none!important;
-    resize: none!important;
     scrollbar-width: none!important;
 }
 #tsc-highlight-overlay-ip {
@@ -25,18 +28,7 @@
     display: inline-block!important;
 }
 #tsc-highlight-overlay-ce {
-    position: absolute!important;
-    display: block!important;
-    visibility: hidden;
-    color: transparent!important;
     border-color: transparent!important;
-    background: transparent!important;
-    -webkit-text-fill-color: transparent!important;
-    -webkit-text-stroke: transparent!important;
-    box-shadow: none!important;
-    outline: none!important;
-    pointer-events: none!important;
-    resize: none!important;
 }
 #tsc-highlight-overlay-ce *:not(tsc-error-highlight) {
     color: transparent!important;
