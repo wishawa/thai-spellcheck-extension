@@ -96,7 +96,8 @@ function checkText(text) {
         previousResult = textToUse;
         previousText = text;
     }
-    catch {
+    catch(e) {
+        console.warn(`check failed: ${e}`);
         checkTextLocked = false;
     }
     checkTextLocked = false;
