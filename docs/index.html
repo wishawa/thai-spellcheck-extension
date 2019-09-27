@@ -1,0 +1,53 @@
+
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="description" content="ตรวจหาการสะกดผิดในภาษาไทย"/>
+    <meta name="keywords" content="ไทย,ภาษาไทย,สะกด,ตรวจ,ตรวจสอบ,พิสูจน์อักษร,พิมพ์,ฟรี,ส่วนขยาย,ส่วนเสริม,spellcheck,proofread,Thai,free,addon,extension">
+    <title>ตัวอย่าง - ตรวจหาคำสะกดผิด</title>
+    <link rel="stylesheet" type="text/css" href="index.css">
+    <script src="thbrk.js"></script>
+    <script src="index.js"></script>
+    <script src="util.js"></script>
+    <script src="markup.js"></script>
+    <script src="purify.js"></script>
+</head>
+<body>
+    <h1 id="big_title">ตรวจหาคำสะกดผิด</h1>
+    <div id="container">
+        <div id="check_container">
+            <div id="backdrop_container">
+                <div id="backdrop" class="check" spellcheck="false"></div>
+            </div>
+            <div contenteditable="true" id="main_input" class="check" placeholder="พิมพ์เพื่อตรวจ" spellcheck="false"></div>
+            <div id="tools">
+                <!--span id="blinker">⚫</span-->
+                <div id="controls">
+                    <div id="status">
+                        สถานะ: <span id="status_text">พร้อมตรวจสอบ</span>
+                    </div>
+                    <div id="checkbox_container">
+                        <input type="checkbox" id="autocheck_checkbox" onchange="autocheckToggle()" checked>ตรวจสอบอัตโนมัติ</input>
+                    </div>
+                    <button id="check_button" class="no_use" onclick="doCheck()" title="กดเพื่อตรวจสอบและขีดเส้นใต้คำที่สะกดผิด">ตรวจสอบ</button>
+                </div>
+                <hr>
+                <div id="addons">
+                    <a id="get_addon_button" href="https://addons.mozilla.org/firefox/addon/thai-spellchecker/" target="_blank" rel="noopener" title="Get the Add-On">
+                        <img id="get_addon_button_img" src="AMO-button.png"/>
+                    </a>
+                    <span>Chrome version coming soon</span>
+                </div>
+                <hr>
+                <div id="misc">
+                    <span id="sourcecode">🖥️ Check out the <a href="https://github.com/wishawa/thai-spellcheck-extension">source code!</a></span>
+                    <span id="offline">🔒 Privacy! What you type remains on your device.</span>
+                    <div id="themes">
+                        <span id="darktheme" class="theme">◐ You browser prefers dark theme. To use light theme, go <a href="light.html">here</a>.</span>
+                        <span id="lighttheme" class="theme">◐ You are using light theme. To use dark theme, go <a href="dark.html">here</a>.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>

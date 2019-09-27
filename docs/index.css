@@ -1,0 +1,200 @@
+
+
+#darktheme {
+    display: none;
+}
+#lighttheme {
+    display: block;
+}
+:root {
+    --shadow-color: rgba(0,0,0,0.5);
+    --highlight-color: rgba(0,0,0,1);
+}
+@media (prefers-color-scheme: dark) {
+    * {
+        color: #eeeeee;
+    }
+    body, #main_input {
+        background-color: black;
+    }
+    #darktheme {
+        display: block;
+    }
+    #lighttheme {
+        display: none;
+    }
+    :root {
+        --shadow-color: rgba(255,255,255,0.5);
+        --highlight-color: rgba(255,255,255,1);
+    }
+}
+body {
+    text-align: center;
+    animation-name: fade_in;
+    animation-duration: 0.8s;
+    animation-iteration-count: 1;
+    opacity: 1;
+}
+@keyframes fade_in {
+    0% {opacity: 0;}
+    100% {opacity: 1;}
+}
+#container {
+    text-align: left;
+
+}
+#check_container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.check {
+    top: 0;
+    left: 0;
+    height: 60vh;
+    width: 60vw;
+    box-sizing: border-box;
+    border-radius: 0;
+    padding: 1em;
+    min-width: 16em;
+    min-height: 4em;
+    resize: none;
+}
+
+#main_input {
+    border: 1px solid rgba(128,128,128,0.5);
+    box-shadow: 0 0 0.4em var(--shadow-color);
+    margin: 0;
+    overflow: scroll;
+    z-index: 2;
+    background-color: transparent;
+    transition-duration: 0.2s;
+}
+#main_input:hover {
+    box-shadow: 0 0 0.8em var(--shadow-color);
+}
+#main_input:focus {
+    box-shadow: 0 0 1.2em var(--shadow-color);
+    outline: 0;
+}
+[contenteditable][placeholder]:empty:before {
+    content: attr(placeholder);
+    color: #888888;
+}
+#backdrop_container {
+    width: 0;
+    height: 0;
+    overflow: visible;
+}
+#backdrop {
+    border: 1px solid transparent;
+    pointer-events: none;
+    overflow: scroll;
+    visibility: hidden;
+    z-index: 1;
+    color: transparent;
+    transition-duration: 0.2s;
+}
+#backdrop * {
+    color: transparent;
+    visibility: hidden;
+}
+
+#tools {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    margin: 2em;
+    width: 16em;
+    min-width: 192px;
+}
+#tools hr {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    width: 100%;
+}
+#status_text {
+    overflow: hidden;
+    transition-duration: 0.2s;
+}
+#status_text.flash {
+    animation-name: flash;
+    animation-duration: 0.4s;
+    animation-iteration-count: 1;
+}
+@keyframes flash {
+    0% {opacity: 1;}
+    50% {opacity: 0;}
+    100% {opacity: 1;}
+}
+#check_button {
+    opacity: 1;
+    pointer-events: auto;
+    transition-duration: 0.2s;
+    transition-timing-function: linear;
+    width: 12em;
+    height: 2em;
+    background-color: rgba(128,128,128,0.4);
+    border: 1px solid rgba(128,128,128,0.5);
+    border-radius: 0.4em;
+}
+#check_button:disabled {
+    border-color: #888888;
+}
+#check_button:hover {
+    box-shadow: 0 0.1em 0.4em var(--shadow-color);
+}
+#check_button:active {
+    box-shadow: 0 0.12em 0.4em var(--shadow-color);
+}
+#check_button.no_use {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(0.2em);
+}
+#addons {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+#get_addon_button:focus {
+    outline: 0;
+    width: 172px;
+}
+#get_addon_button_img {
+    transition-duration: 0.2s;
+    border-radius: 8px;
+}
+#get_addon_button_img:hover {
+    box-shadow: 0 4px 8px var(--shadow-color);
+    transform: translateY(-4px);
+}
+
+#misc * {
+    color: #888888;
+}
+
+#misc {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+}
+
+tsc-error-highlight {
+    visibility: visible;
+    color: transparent;
+    background: transparent;
+    box-shadow: 0 -2px 0 rgba(255,0,0,0.6) inset!important;
+}
+
+button::-moz-focus-inner {
+    border: 0;
+}
+button:hover {
+    cursor: pointer;
+}
+button:active {
+    padding: 0;
+}
