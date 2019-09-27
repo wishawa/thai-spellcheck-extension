@@ -42,6 +42,11 @@ body {
     min-width: 16em;
     min-height: 4em;
     resize: none;
+    background-color: transparent!important;
+}
+
+.check * {
+    background-color: transparent!important;
 }
 
 #main_input {
@@ -50,7 +55,6 @@ body {
     margin: 0;
     overflow: scroll;
     z-index: 2;
-    background-color: transparent;
     transition-duration: 0.2s;
 }
 #main_input:hover {

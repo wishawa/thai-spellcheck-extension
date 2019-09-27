@@ -7,3 +7,4 @@ This extension finds and highlights spelling mistakes for Thai language in Firef
 It uses a reduced and modified version of LibThai to find mistakes.
 Some frontend JavaScript code is taken from LanguageTool.org extension.
 
+A demo is available here: https://wishawa.github.io/thai-spellcheck-extension/
