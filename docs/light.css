@@ -165,7 +165,7 @@ body {
 }
 
 tsc-error-highlight {
-    visibility: visible;
+    visibility: visible!important;
     color: transparent;
     background: transparent;
     box-shadow: 0 -2px 0 rgba(255,0,0,0.6) inset!important;
