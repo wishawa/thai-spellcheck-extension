@@ -142,6 +142,7 @@ function autocheckToggle() {
     if(autocheckCheckbox.checked) {
         checkButton.classList.add('no_use');
         mainInput.addEventListener('keyup', doCheck);
+        mainInput.addEventListener('keyup', doScroll);
         doCheck();
 
     }
