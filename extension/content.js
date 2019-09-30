@@ -142,10 +142,7 @@ function createHighlightOverlay(elem) {
 }
 
 async function doSize() {
-    if(!currentHighlightOverlay) return 0;
-    if(!isActiveElementSimpleInput) {
-        return 0;
-    }
+    if(!currentHighlightOverlay || !currentHighlightOverlay.offsetParent || !isActiveElementSimpleInput) return 0;
     var parent = currentActiveElement.parentNode;
     var styles = window.getComputedStyle(currentActiveElement);
 
