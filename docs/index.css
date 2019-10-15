@@ -40,6 +40,9 @@ body {
     0% {opacity: 0;}
     100% {opacity: 1;}
 }
+a {
+    color: #888888;
+}
 #container {
     text-align: left;
 

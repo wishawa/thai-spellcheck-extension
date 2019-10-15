@@ -2,6 +2,9 @@
 * {
     color: #eeeeee;
 }
+a {
+    color: #888888;
+}
 body, #main_input {
     background-color: black;
 }
