@@ -66,6 +66,13 @@ function checkText(text) {
             var te = textToPredict[i];
             var textOffset = 0;
             var cur = 0;
+            var dbgtext = "";
+            console.log(predictResults[i]);
+            dbgtext += te.slice(0, predictResults[i][0][0]) + " | ";
+            for(var j=1; j<predictResults[i][0].length; j++) {
+                dbgtext += te.slice(predictResults[i][0][j-1], predictResults[i][0][j]) + " | ";
+            }
+            dbgtext += te.slice(predictResults[i][0][j-1]);
             for(var j=0; j<predictResults[i][1].length; j++) {
                 if(predictResults[i][1][j] < cur) {
                     console.warn("Unexpected response");
@@ -90,6 +97,7 @@ function checkText(text) {
             }
             if('markup' in text[toFill[i]]) textToUse[toFill[i]] = {text: te, markup: text[toFill[i]]['markup']};
             else textToUse[toFill[i]] = {text: te};
+            console.log(dbgtext);
         }
         if(text.length == 1 && text[0]['text'].length == 0) backdrop.innerHTML = '';
         else backdrop.innerHTML = Markup.markupList2html(textToUse);
