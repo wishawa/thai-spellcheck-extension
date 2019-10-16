@@ -124,8 +124,8 @@ th_brk_find_breaks (ThBrk *brk, const thchar_t *s, int pos[], size_t pos_sz, int
                 if (LIKELY (cur_pos > 0) && pos[cur_pos - 1] == p - s)
                     --cur_pos;
                 
-                if (LIKELY (inc_cur_pos > 0) && inc[inc_cur_pos - 1] == p - s)
-                    --inc_cur_pos;
+                /*if (LIKELY (inc_cur_pos > 0) && inc[inc_cur_pos - 1] == p - s)
+                    --inc_cur_pos;REMOVE*/
 
                 if (cur_pos >= pos_sz)
                     break;
@@ -180,8 +180,8 @@ th_brk_find_breaks (ThBrk *brk, const thchar_t *s, int pos[], size_t pos_sz, int
         /* remove last break if at string end */
         if (pos[cur_pos - 1] == p - s)
             --cur_pos;
-        if (LIKELY (inc_cur_pos > 0) && inc[inc_cur_pos - 1] == p - s)
-            --inc_cur_pos;
+        /*if (LIKELY (inc_cur_pos > 0) && inc[inc_cur_pos - 1] == p - s)
+            --inc_cur_pos;REMOVE*/
     }
 
     brk_env_free (env);

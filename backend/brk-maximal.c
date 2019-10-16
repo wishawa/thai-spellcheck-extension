@@ -200,6 +200,15 @@ brk_maximal_do_impl (const thwchar_t *ws, int len,
             is_terminal = trie_state_is_terminal (shot->dict_state);
             if (str_pos >= len) {
                 if (!is_terminal) {
+                    if (shot->cur_inc_pos < shot->n_inc_pos) {
+                        if (shot->cur_brk_pos > 0) {
+                            shot->inc_pos[shot->cur_inc_pos] = shot->brk_pos[shot->cur_brk_pos -1];
+                        }
+                        else {
+                            shot->inc_pos[shot->cur_inc_pos] = 0;
+                        }
+                        shot->cur_inc_pos++;
+                    }
                     /* add penalty with string len - recent break pos */
                     shot->penalty += len;
                     if (shot->cur_brk_pos > 0)
