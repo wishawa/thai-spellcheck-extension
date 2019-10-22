@@ -1,3 +1,4 @@
+Are you a developer looking to incorporate Thai spellchecking to your website? Try my [JavaScript module](https://github.com/wishawa/thai-spell-check).
 # thai-spellcheck-extension
 Spellchecking extension for Thai language for Firefox.
 
