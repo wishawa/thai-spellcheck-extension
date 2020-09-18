@@ -50,7 +50,7 @@ tsc-error-highlight {
     box-shadow: 0 -2px 0 rgba(255,0,0,0.6) inset!important;
     pointer-events: none!important;
 }
-.tsc-highlighted-element-ce:before {
+.tsc-highlighted-element-ce::before {
     content: '\00a0';
     display: block;
     overflow: hidden;
