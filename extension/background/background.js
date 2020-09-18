@@ -6,7 +6,7 @@ var extensionEnabled = true;
 browser.browserAction.setBadgeBackgroundColor({color: 'black'});
 browser.browserAction.setBadgeText({text: 'On'});
 browser.browserAction.setBadgeTextColor({color: 'green'});
-browser.browserAction.setTitle({title: 'Thai Spellchecker: On\nClick to turn off.'});
+browser.browserAction.setTitle({title: 'Thai Spellchecker: On \nClick to turn off.'});
 
 function onError(error) {
     console.warn(`Error: ${error}`);
@@ -14,7 +14,7 @@ function onError(error) {
 function sendMessageToTabs(tabs, action) {
     for (let tab of tabs) {
         browser.tabs.sendMessage(tab.id, {action: action}).then(function(r) {
-            if(r != 1 && r != 2) {
+            if(r !== 1 || r !== 2) {
                 console.warn("Toggling spellcheck produces unexpected result: " + r);
             }
         }).catch(function(error) {
@@ -33,12 +33,12 @@ function handleBrowserAction() {
         if(extensionEnabled) {
             browser.browserAction.setBadgeText({text: 'On'});
             browser.browserAction.setBadgeTextColor({color: 'green'});
-            browser.browserAction.setTitle({title: 'Thai Spellchecker: On\nClick to turn off.'});
+            browser.browserAction.setTitle({title: 'Thai Spellchecker: On. \nClick to turn off.'});
         }
         else {
             browser.browserAction.setBadgeText({text: 'Off'});
             browser.browserAction.setBadgeTextColor({color: 'red'});
-            browser.browserAction.setTitle({title: 'Thai Spellchecker: Off\nClick to turn on.'});
+            browser.browserAction.setTitle({title: 'Thai Spellchecker: Off. \nClick to turn on.'});
         }
     }).catch(onError);
 }
@@ -51,7 +51,7 @@ var breaker;
 Module['onRuntimeInitialized'] = function() {
     findBreaks = Module.cwrap('th_brk_wc_find_breaks', 'number', ['number', 'number', 'number', 'number', 'number', 'number']);//[ThBrk *brk, const thchar_t *s, int pos[], size_t pos_sz, int inc[], int *inc_ret]
     breaker = Module.ccall('th_brk_new', 'number', ['string'], [null]);
-}
+};
 
 function predictCuts(text) {
      var l = text.length;
