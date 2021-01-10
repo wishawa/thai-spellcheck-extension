@@ -1,0 +1,29 @@
+#darktheme {
+    display: none;
+}
+#lighttheme {
+    display: block;
+}
+:root {
+    --shadow-color: rgba(0,0,0,0.5);
+    --highlight-color: rgba(0,0,0,1);
+}
+@media (prefers-color-scheme: dark) {
+    * {
+        color: #eeeeee;
+    }
+    body, #main_input {
+        background-color: black;
+    }
+    #darktheme {
+        display: block;
+    }
+    #lighttheme {
+        display: none;
+    }
+    :root {
+        --shadow-color: rgba(255,255,255,0.5);
+        --highlight-color: rgba(255,255,255,1);
+    }
+}
+
